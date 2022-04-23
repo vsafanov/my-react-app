@@ -1,12 +1,74 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import "bootstrap/dist/css/bootstrap.min.css";
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import blue from '@mui/material/colors/blue';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+//  import DealsList from './Components/admin/DealsList';
+import Home from './Components/deals/Home';
+import App from './Components/App/App';
+//  import Index  from './Components/admin/Index';
+import Layout from './Components/admin/Layout';
+import { adminRoutes } from './routes';
+
+//  const adminRoutes = [
+//   {
+//       Component: <Index />,
+//       path: 'Index',
+//   },
+//   {
+//       Component: <DealsList />,
+//       path: 'DealsList',
+//   }
+// ]
+
+const theme = createTheme({
+  palette: {
+    primary: blue,
+  },
+});
+
+// const COMPONENT_MAP = {
+//   'Index': Index, 
+//   'DealsList':DealsList
+// }
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} >
+            <Route path="deal" element={<Home />} />
+          </Route>
+          <Route path='admin' element={<Layout />}> 
+            {
+              adminRoutes.map(route => {
+                return <Route key={route.path} path={route.path} element={route.Component} />
+                
+              })
+            }
+            {/* <Route path='index' element={<Index />} /> 
+            <Route path='DealsList' element={<DealsList />} />  */}
+            
+          </Route>
+          <Route
+            path="*"
+            element={
+              <main style={{ padding: "1rem" }}>
+                <p>There's nothing here!</p>
+              </main>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -47,11 +47,11 @@ import DealsList from "./Components/admin/DealsList"
 
     export const adminRoutes = [
         {
-            Component: <Index/>,
+            component: <Index/>,
             path: 'Index',
         },
         {
-            Component: <DealsList/>,
+            component: <DealsList/>,
             path: 'DealsList',
         },
         // {

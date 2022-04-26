@@ -15,8 +15,59 @@ app.get('/deal_list', (req, res) => { //Line 9
 }); //Line 11
 
 
-let DealsListData = 
-[
+
+
+app.get('/deals_list_by_id', function (req, res) {
+
+  var sql = require("mssql");
+  // console.log("Started")
+  // config for your database
+  // var config = {
+  //     user: 'sa',
+  //     password: 'get2Tahiti',
+  //     server: 'localhost', 
+  //     database: 'SuperDeals2016' 
+  // };
+
+  var config = {
+    server: 'localhost',
+    authentication: {
+      type: 'default',
+      options: {
+        userName: 'sa', // update me
+        password: 'get2Tahiti' // update me
+      }
+    },
+    options: {
+      database: 'SuperDeals2016',
+      validateBulkLoadParameters: false,
+      encrypt: false,
+    }
+  }
+
+  // connect to your database
+  sql.connect(config, function (err) {
+
+    if (err) console.log(err);
+
+    // create Request object
+    var request = new sql.Request();
+
+    // query to the database and get the records
+    request.query("select top 100 * from dealslist", function (err, recordset) {
+
+      if (err) console.log(err)
+      // console.log(recordset)
+      // send records as a response
+      res.send(recordset);
+
+    });
+  });
+});
+
+
+  let DealsListData =
+  [
     {
       "Price": "$178.88",
       "ListPrice": "$999.99",
@@ -69,6 +120,3 @@ let DealsListData =
       "ASIN": "B07FT5JS24"
     }
   ]
-
-
-  

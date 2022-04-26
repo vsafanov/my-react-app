@@ -10,34 +10,17 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-//  import DealsList from './Components/admin/DealsList';
+
 import Home from './Components/deals/Home';
 import App from './Components/App/App';
-//  import Index  from './Components/admin/Index';
 import Layout from './Components/admin/Layout';
 import { adminRoutes } from './routes';
-
-//  const adminRoutes = [
-//   {
-//       Component: <Index />,
-//       path: 'Index',
-//   },
-//   {
-//       Component: <DealsList />,
-//       path: 'DealsList',
-//   }
-// ]
 
 const theme = createTheme({
   palette: {
     primary: blue,
   },
 });
-
-// const COMPONENT_MAP = {
-//   'Index': Index, 
-//   'DealsList':DealsList
-// }
 
 ReactDOM.render(
   <React.StrictMode>
@@ -50,7 +33,7 @@ ReactDOM.render(
           <Route path='admin' element={<Layout />}> 
             {
               adminRoutes.map(route => {
-                return <Route key={route.path} path={route.path} element={route.Component} />
+                return <Route key={route.path} path={route.path} element={route.component} />
                 
               })
             }

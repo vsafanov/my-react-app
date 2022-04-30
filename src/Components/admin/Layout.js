@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Outlet, NavLink } from 'react-router-dom';
 import { Box, Button, Tab } from '@mui/material';
-import { SocialDistance } from '@mui/icons-material';
+
 // import { menuItems } from '../../routes';
+
 
 const Layout = () => {
 
@@ -65,11 +66,11 @@ const Layout = () => {
 
     return (
         <>
-                    <Box
+            <Box
                 sx={{
                     display: 'flex',
                     flexWrap: 'wrap',
-                    padding:'15px ',
+                    padding: '15px ',
                     justifyContent: 'left',
                     // borderBottom: 1,
                     borderColor: 'divider'
@@ -83,7 +84,7 @@ const Layout = () => {
 
                             style={({ isActive }) => {
                                 return {
-                                    //  display: "block",
+
                                     padding: "5px 20px",
                                     color: isActive ? "#2196f3" : "grey",
                                     textDecoration: 'none',

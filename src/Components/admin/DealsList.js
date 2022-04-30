@@ -1,14 +1,17 @@
-import { Alert, AlertTitle, Backdrop, Button, CircularProgress } from "@mui/material";
+import { Alert, AlertTitle, Backdrop, Button, CircularProgress, TextField } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DataGrid, GridActionsCellItem, GridToolbar } from '@mui/x-data-grid';
 import moment from 'moment';
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 
+import CustomModal from "../common/CustomModal";
+import { DealForm } from "./DealForm";
+
 function getFormattedDate(params) {
   return moment(params.row.PostedDate).format('MM-DD-YYYY');
-  
+
 }
 
 const useDataApiFromSQL = () => {
@@ -43,6 +46,7 @@ const useDataApiFromSQL = () => {
 
   return [{ rows, loading, error, isError }];
 }
+
 function ErrorAlert(props) {
   const [show, setShow] = useState(props.ShowAlert);
 
@@ -58,7 +62,33 @@ function ErrorAlert(props) {
 }
 const DealsList = () => {
 
-  const [{ rows, loading, error, isError }] =   useDataApiFromSQL();
+  const [{ rows, loading, error, isError }] = useDataApiFromSQL();
+
+  const [modalShow, setModalShow] = useState(false);
+  const [dealId, setDealId] = useState('');
+
+  const OpenDetails = (dealId) => {
+    alert(dealId)
+    setDealId(dealId)
+    setModalShow(true)
+  }
+
+
+  const childFunc = useRef({})
+
+  const onSave = () => {
+
+    //THIS ID CALL FOR CHILD FORM DealForm Alert func
+    // childFunc.current()
+    
+    alert("DealsList" + dealId);
+    console.log(dealId)
+  }
+
+
+  const MyButton = () => {
+    return <Button variant="contained" form='dealForm' type="submit" onClick={() => alert('test')}>Custom Save</Button>
+  }
 
   const columns = [
     // { field: 'id', headerName: 'ID', width: 90 },
@@ -77,7 +107,7 @@ const DealsList = () => {
       // valueGetter:getFormattedDate, // THIS WORKS
       valueGetter: ({ value }) => moment(value).format('MM-DD-YYYY'), //AND THIS WORKS
 
-      
+
       editable: true,
     },
     {
@@ -85,8 +115,8 @@ const DealsList = () => {
       headerName: 'Expiration Date',
       width: 150,
       type: 'date',
-      valueFormatter: (params) => {return params.value?moment(params.value).format('MM/DD/YYYY'):''} ,
-      
+      valueFormatter: (params) => { return params.value ? moment(params.value).format('MM/DD/YYYY') : '' },
+
       editable: true,
     },
     {
@@ -95,7 +125,7 @@ const DealsList = () => {
       // type: 'string',
       width: 300,
       editable: true,
-      flex:10
+      flex: 10
 
     },
     {
@@ -117,21 +147,21 @@ const DealsList = () => {
       ],
     },
     {
-      field:"Action",
-      headerName:'Action',
+      field: "Action",
+      headerName: 'Action',
       // type:'actions',
-      width:100,
+      width: 100,
       renderCell: (params) => (
         <strong>
-          {/* {params.value.getFullYear()} */}
-          {params.value} 
+          {/* {console.log(params.row)} */}
           <Button
             variant="contained"
             color="primary"
             size="small"
             style={{ marginLeft: 16 }}
+            onClick={() => OpenDetails(params.id)}
           >
-            Open
+            Open  {params.id}
           </Button>
         </strong>
       ),
@@ -141,11 +171,27 @@ const DealsList = () => {
   ];
 
   return (
-    
+
     <>
-    <h3> Deals List !!!</h3>
-    
-    {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={error && error.message} />)}
+
+      {/* <DealDetails show={modalShow} id={dealId} onHide={() => setModalShow(false)} onSave={()=>onSave()} /> */}
+      <CustomModal
+        show={modalShow}
+        id={dealId}
+        title={`Test My Title ${dealId}`}
+        onHide={() => setModalShow(false)}
+        // onSave={onSave}
+        ShowSaveButton={true}
+        form='dealForm'
+        type='submit'
+        MyButton={<MyButton />}
+      >
+        <h1>Test!!!</h1>
+        <DealForm id="dealForm" /> {/* childFunc={childFunc}  onSubmit={onSave}/> */}
+      </CustomModal>
+
+
+      {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={error && error.message} />)}
 
       {loading && (
         <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading} >
@@ -154,25 +200,28 @@ const DealsList = () => {
       }
 
       {!loading && !isError && (
-        
-        <div style={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={ rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]} 
-          checkboxSelection
-          disableSelectionOnClick
-          density='compact'
-          getRowId = {(row) => row.DealID}
-          // loading='true'
-          components={{Toolbar:GridToolbar }}
-               
+
+        <div style={{ height: 600, width: '100%' }}>
+
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            checkboxSelection
+            disableSelectionOnClick
+            density='compact'
+            getRowId={(row) => row.DealID}
+            // loading='true'
+            components={{ Toolbar: GridToolbar }}
+
           />
-      </div>
-        )
+
+        </div>
+      )
       }
-      </>
+
+    </>
   );
 }
 

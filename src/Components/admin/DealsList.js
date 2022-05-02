@@ -28,7 +28,7 @@ const useDataApiFromSQL = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/deals_list_by_id');
+        const response = await axios.get('http://localhost:5000/deals_list');
         setItems(response.data.recordset);
       } catch (error) {
         // console.log(error);
@@ -68,7 +68,7 @@ const DealsList = () => {
   const [dealId, setDealId] = useState('');
 
   const OpenDetails = (dealId) => {
-    alert(dealId)
+    //alert(dealId)
     setDealId(dealId)
     setModalShow(true)
   }
@@ -187,7 +187,7 @@ const DealsList = () => {
         MyButton={<MyButton />}
       >
         <h1>Test!!!</h1>
-        <DealForm id="dealForm" /> {/* childFunc={childFunc}  onSubmit={onSave}/> */}
+        <DealForm id="dealForm" dealid={dealId}/> {/* childFunc={childFunc}  onSubmit={onSave}/> */}
       </CustomModal>
 
 

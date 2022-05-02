@@ -6,6 +6,22 @@ var cors = require('cors')
 
 app.use(cors()) // Use this after the variable declaration
 
+var config = {
+  server: 'localhost',
+  authentication: {
+    type: 'default',
+    options: {
+      userName: 'sa', // update me
+      password: 'get2Tahiti' // update me
+    }
+  },
+  options: {
+    database: 'SuperDeals2016',
+    validateBulkLoadParameters: false,
+    encrypt: false,
+  }
+}
+
 // This displays message that the server running and listening to specified port
 app.listen(port, () => console.log(`Listening on port ${port}`)); //Line 6
 
@@ -14,36 +30,9 @@ app.get('/deal_list', (req, res) => { //Line 9
   res.json(DealsListData) //send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Line 10
 }); //Line 11
 
-
-
-
-app.get('/deals_list_by_id', function (req, res) {
+app.get('/deals_list', function (req, res) {
 
   var sql = require("mssql");
-  // console.log("Started")
-  // config for your database
-  // var config = {
-  //     user: 'sa',
-  //     password: 'get2Tahiti',
-  //     server: 'localhost', 
-  //     database: 'SuperDeals2016' 
-  // };
-
-  var config = {
-    server: 'localhost',
-    authentication: {
-      type: 'default',
-      options: {
-        userName: 'sa', // update me
-        password: 'get2Tahiti' // update me
-      }
-    },
-    options: {
-      database: 'SuperDeals2016',
-      validateBulkLoadParameters: false,
-      encrypt: false,
-    }
-  }
 
   // connect to your database
   sql.connect(config, function (err) {
@@ -57,16 +46,45 @@ app.get('/deals_list_by_id', function (req, res) {
     request.query("select top 100 * from dealslist", function (err, recordset) {
 
       if (err) console.log(err)
-      // console.log(recordset)
+      //  console.log(recordset)
       // send records as a response
       res.send(recordset);
 
     });
+
+
+  });
+})
+
+app.get('/deals_list/:id', function (req, res) {
+
+  console.log("start")
+  var sql = require("mssql");
+
+  // connect to your database
+  sql.connect(config, function (err) {
+
+    if (err) console.log(err);
+
+    // create Request object
+    var request = new sql.Request();
+
+    // query to the database and get the records
+    request.input('dealid', sql.Int, req.params.id).query("select  * from dealslist where dealid=@dealid", function (err, recordset) {
+
+      if (err) console.log(err)
+       console.log(recordset)
+      // send records as a response
+      res.send(recordset);
+
+    });
+
+
   });
 });
 
 
-  let DealsListData =
+let DealsListData =
   [
     {
       "Price": "$178.88",

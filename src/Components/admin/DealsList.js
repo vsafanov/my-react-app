@@ -1,6 +1,6 @@
-import { Alert, AlertTitle, Backdrop, Button, CircularProgress, TextField } from "@mui/material";
+import { Alert, AlertTitle, Backdrop, Button, Checkbox, CircularProgress, FormControlLabel, TextField } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { DataGrid, GridActionsCellItem, GridToolbar } from '@mui/x-data-grid';
 import moment from 'moment';
 import EditIcon from "@mui/icons-material/Edit"
@@ -8,43 +8,12 @@ import DeleteIcon from "@mui/icons-material/Delete"
 
 import CustomModal from "../common/CustomModal";
 import { DealForm } from "./DealForm";
+import ClientApi, { method } from "../../ClientApi";
+
 
 function getFormattedDate(params) {
   return moment(params.row.PostedDate).format('MM-DD-YYYY');
 
-}
-
-const useDataApiFromSQL = () => {
-
-  const [rows, setItems] = useState({});
-
-  // const [url, setUrl] = useState('http://localhost:5000/deal_list' );
-  const [loading, setLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState(null);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('http://localhost:5000/deals_list');
-        setItems(response.data.recordset);
-      } catch (error) {
-        // console.log(error);
-        setError(error);
-        setIsError(true);
-      }
-      setLoading(false);
-    }
-
-    fetchData().catch(
-      console.error
-    );
-
-  }, []);
-
-  return [{ rows, loading, error, isError }];
 }
 
 function ErrorAlert(props) {
@@ -62,7 +31,9 @@ function ErrorAlert(props) {
 }
 const DealsList = () => {
 
-  const [{ rows, loading, error, isError }] = useDataApiFromSQL();
+
+
+  const [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list', method.get);
 
   const [modalShow, setModalShow] = useState(false);
   const [dealId, setDealId] = useState('');
@@ -80,7 +51,7 @@ const DealsList = () => {
 
     //THIS ID CALL FOR CHILD FORM DealForm Alert func
     // childFunc.current()
-    
+
     alert("DealsList" + dealId);
     console.log(dealId)
   }
@@ -93,67 +64,15 @@ const DealsList = () => {
   const columns = [
     // { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'DealID',
-      headerName: 'Deal ID',
-      // type: 'integer',
-      width: 100,
-      editable: false,
-    },
-    {
-      field: 'PostedDate',
-      headerName: 'Posted Date',
-      width: 150,
-      type: 'date',
-      // valueGetter:getFormattedDate, // THIS WORKS
-      valueGetter: ({ value }) => moment(value).format('MM-DD-YYYY'), //AND THIS WORKS
-
-
-      editable: true,
-    },
-    {
-      field: 'ExpirationDate',
-      headerName: 'Expiration Date',
-      width: 150,
-      type: 'date',
-      valueFormatter: (params) => { return params.value ? moment(params.value).format('MM/DD/YYYY') : '' },
-
-      editable: true,
-    },
-    {
-      field: 'Title',
-      headerName: 'Title',
-      // type: 'string',
-      width: 300,
-      editable: true,
-      flex: 10
-
-    },
-    {
-      field: 'Details',
-      headerName: 'Details',
-      description: 'This column has a value getter and is not sortable.',
-      sortable: false,
-      width: 600,
-      // valueGetter: (params) =>
-      //   `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      width: 100,
-      getActions: () => [
-        <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
-        <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
-      ],
-    },
-    {
       field: "Action",
       headerName: 'Action',
+      sortable: false,
       // type:'actions',
-      width: 100,
+      width: 130,
+      headerAlign: 'center',
+      headerClassName: 'grid-header',
       renderCell: (params) => (
-        <strong>
-          {/* {console.log(params.row)} */}
+        <>
           <Button
             variant="contained"
             color="primary"
@@ -161,35 +80,136 @@ const DealsList = () => {
             style={{ marginLeft: 16 }}
             onClick={() => OpenDetails(params.id)}
           >
-            Open  {params.id}
+            &nbsp;Edit &nbsp; <sup> {params.id}</sup>&nbsp;
           </Button>
-        </strong>
+        </>
       ),
-
-
     }
+    ,
+    // {
+    //   field: 'DealID',
+    //   headerName: 'Deal ID',
+    //   // type: 'integer',
+    //   width: 70,
+    //   editable: false,
+    //   headerClassName: 'grid-header',
+    //   // flex:0.1
+    // },
+    {
+      field: 'PostedDate',
+      headerName: 'Posted',
+      width: 100,
+      headerClassName: 'grid-header',
+      type: 'date',
+      // valueGetter:getFormattedDate, // THIS WORKS
+      valueGetter: ({ value }) => moment(value).format('MM-DD-YYYY'), //AND THIS WORKS
+      editable: true,
+      // flex:0.15
+    },
+    {
+      field: 'ExpirationDate',
+      headerName: 'Expiration',
+      headerClassName: 'grid-header',
+      width: 100,
+      type: 'date',
+      valueFormatter: (params) => { return params.value ? moment(params.value).format('MM/DD/YYYY') : '' },
+
+      editable: true,
+      // flex:0.15
+    },
+    {
+      field: 'StatusID',
+      headerName: 'Status',
+      headerAlign: 'center',
+      headerClassName: 'grid-header',
+      // type: 'string',
+      minWidth: 110,
+      editable: true,
+      // flex: 0.05
+
+    },
+    {
+      field: 'CompanyName',
+      headerName: 'Company',
+      headerAlign: 'center',
+      headerClassName: 'grid-header',
+      // type: 'string',
+      minWidth: 100,
+      editable: true,
+      // flex: 0.05
+
+    },
+    {
+      field: 'Categories',
+      headerName: 'Categories',
+      // type: 'integer',
+      width: 120,
+      editable: false,
+      headerClassName: 'grid-header',
+      renderCell: (params) => (<div className="text-wrap" dangerouslySetInnerHTML={{ __html: params.value }} />),
+      // flex:0.1
+    },
+    {
+      field: 'Title',
+      headerName: 'Title',
+      headerAlign: 'center',
+      headerClassName: 'grid-header',
+      // type: 'string',
+
+      minWidth: 200,
+      editable: true,
+
+      renderCell: (params) => (<div className="text-wrap" dangerouslySetInnerHTML={{ __html: params.value }} />),
+    },
+    {
+      field: 'Details',
+      headerName: 'Details',
+      headerAlign: 'center',
+      headerClassName: 'grid-header',
+      // description: 'This column has a value getter and is not sortable.',
+      sortable: false,
+      width: 600,
+      // valueGetter: (params) =>
+      //   `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+      renderCell: (params) => (<div style={{ margin: 'hidden' }} dangerouslySetInnerHTML={{ __html: params.value }} />),
+
+    },
+    // {
+    //   field: 'actions',
+    //   type: 'actions',
+    //   width: 100,
+
+    //   getActions: () => [
+    //     <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
+    //     <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
+    //   ],
+    // },
   ];
 
-  return (
+  const CheckboxColumn = (props) => {
 
+    return <FormControlLabel control={<Checkbox defaultChecked />} label="Label" />
+  }
+
+  return (
     <>
 
       {/* <DealDetails show={modalShow} id={dealId} onHide={() => setModalShow(false)} onSave={()=>onSave()} /> */}
       <CustomModal
+        size="lg"
+
         show={modalShow}
         id={dealId}
-        title={`Test My Title ${dealId}`}
+        title={`Edit deal # ${dealId}`}
         onHide={() => setModalShow(false)}
         // onSave={onSave}
         ShowSaveButton={true}
         form='dealForm'
         type='submit'
-        MyButton={<MyButton />}
+        AddButton={<MyButton />}
       >
-        <h1>Test!!!</h1>
-        <DealForm id="dealForm" dealid={dealId}/> {/* childFunc={childFunc}  onSubmit={onSave}/> */}
+        <DealForm id="dealForm" dealid={dealId} /> {/* childFunc={childFunc}  onSubmit={onSave}/> */}
       </CustomModal>
-
 
       {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={error && error.message} />)}
 
@@ -201,19 +221,28 @@ const DealsList = () => {
 
       {!loading && !isError && (
 
-        <div style={{ height: 600, width: '100%' }}>
+        <div style={{ height: 800, width: '100%' }}>
+          
 
+          {/* <input type="checkbox" title={(row)=>row.dealId}></input> */}
           <DataGrid
-            rows={rows}
+
+            // autoPageSize
+
+            sx={{ 'fontSize': '12px' }}
+            headerHeight={30}
+            autoHeight={true}
+            rowHeight={100}
+            rows={result}
             columns={columns}
             pageSize={10}
-            rowsPerPageOptions={[10]}
+            //rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
             disableSelectionOnClick
-            density='compact'
+            density='comfortable'
             getRowId={(row) => row.DealID}
             // loading='true'
-            components={{ Toolbar: GridToolbar }}
+            components={{ Toolbar: GridToolbar, CheckboxColumn: CheckboxColumn }}
 
           />
 

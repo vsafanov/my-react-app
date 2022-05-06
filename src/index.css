@@ -25,3 +25,8 @@ code {
     max-height: 300px;
     margin: 5px 5px;
 }
+
+.grid-header{
+  /* font-weight: 900; */
+  font-size: 14px;
+}

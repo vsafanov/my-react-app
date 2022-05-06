@@ -2,65 +2,32 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import moment from 'moment';
-import { TextField, Alert, Icon } from "@mui/material";
+import { TextField, Alert, Icon, Grid, MenuItem, Select } from "@mui/material";
 import ReactDatePicker from "react-datepicker";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, DateTimePicker, DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Error } from "@mui/icons-material"
+import ClientApi, { method } from "../../ClientApi";
 
 
-const useDataApiFromSQL = (id) => {
 
-    const [row, setItem] = useState({})
-
-    // const [url, setUrl] = useState('http://localhost:5000/deal_list' );
-    const [loading, setLoading] = useState(true);
-    const [isError, setIsError] = useState(false);
-    const [error, setError] = useState(null);
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                // console.log(`http://localhost:5000/deals_list?id=${id}`)
-                const response = await axios.get(`http://localhost:5000/deals_list/${id}`);
-
-                setItem(response.data.recordset[0]);
-            } catch (error) {
-                //    console.log(error);
-                setError(error);
-                setIsError(true);
-            }
-            finally {
-                setLoading(false);
-            }
-
-        }
-
-        fetchData().catch(
-            console.error
-        );
-
-    }, []);
-
-    return [{ row, loading, error, isError }];
-}
 
 export const DealForm = ({ dealid, ...props }) => {
 
     const [value, setDate] = useState(null);
     const [data, setData] = useState("");
     const [deal, SetDeal] = useState({})
+
     const myform = useRef()
 
 
-    const [{ row, loading, error, isError }] = useDataApiFromSQL(dealid);
-    console.log(row)
+    const [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list/166683', method.get);
 
-    const { register, watch, formState: { errors }, handleSubmit, control, reset, getValues } = useForm({
+    console.log(result)
 
-        defaultValues: { row },
+    const { register, watch, formState: { errors }, handleSubmit, control, reset, getValues, setValue } = useForm({
+
+        defaultValues: { result },
         mode: "onChange"
 
     });
@@ -73,22 +40,20 @@ export const DealForm = ({ dealid, ...props }) => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
         // defaultValues = {
+        // alert(result)
+        if (result) {
 
-        row.ExpirationDate = convertDate(row.ExpirationDate)
-        row.PostedDate = convertDate(row.PostedDate)
-        // CompanyID: row.CompanyID,
-        // DealID: row.DealID,
-        // Details: row.Details,
-        // StatusID: row.StatusID,
-        // Title: row.Title,
-        // Note: row.Note      }
+            result.ExpirationDate = convertDate(result?.ExpirationDate)
+            result.PostedDate = convertDate(result?.PostedDate)
 
-        setDate(convertDate(row.PostedDate))
-        reset(row);
-    }, [reset, row])
+            setDate(convertDate(result.PostedDate))
+        }
+
+        reset(result);
+    }, [reset, result])
 
 
-    const title = watch("Title", '');
+    // const title = watch("Title", '');
     // const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
     const watchFields = watch(["Title", "PostedDate"]); // you can also target specific fields by their names
 
@@ -120,6 +85,10 @@ export const DealForm = ({ dealid, ...props }) => {
         return date ? moment(date).format("YYYY-MM-DD") : null;
     };
 
+    const handleChange = (newValue) => {
+        setValue(newValue);
+    };
+
     return (
         <>
             {<b>Title: {getValues("Title")}</b>}
@@ -129,68 +98,110 @@ export const DealForm = ({ dealid, ...props }) => {
                 <form id={props?.id} onSubmit={handleSubmit(onSubmit, onError)}>
 
                     {/* <input type="date" defaultValue={convertDate(row.PostedDate)} {...register("PostedDate")} placeholder="Posted Date" /> */}
-                    <TextField
-                        // id="Posted Date"
-                        label="Posted Date"
+                    <div>
+                        <div className="row">
+                            <div className="col-3" >
+                                <TextField
+                                    label="PostedDate"
+                                    // defaultValue={convertDate(row.ExpirationDate)}
+                                    size="small"
+                                    type="date"
+                                    focused
+                                    {...register("PostedDate")}
+                                // onChange={handleChange}
+                                //onChange={e=> {setUser({...user, name: e.target.value});}}
+                                />
+                            </div>
+                            <div className="col-3">
+                                <TextField
+                                    label="Expiration Date"
+                                    // defaultValue={convertDate(row.ExpirationDate)}
+                                    size="small"
+                                    type="date"
+                                    focused
+                                    {...register("ExpirationDate")}
+                                // onChange={handleChange}
+                                //onChange={e=> {setUser({...user, name: e.target.value});}}
+                                />
+                            </div>
+                            <div className="col-6">
+                                <div style={{ border: '1px solid green' }}>2</div>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-3" >
+                                <TextField
+                                    size="small"
+                                    select 
+                                    label="Company Name"
+                                    defaultValue={result.CompanyID}
+                                    {...register("CompanyID")}
+                                // helperText="Please select your currency"
+                                >
+                                    {JSON.parse(sessionStorage.getItem("Companies")).map((item) =>
+                                        <MenuItem key={item.CompanyID} value={item.CompanyID} >
+                                            {item.CompanyName}
+                                        </MenuItem>
+                                    )}
+                                </TextField>
+                            </div>
+                            <div className="col-3" >
+                                <Select
+                                    multiple
+                                    native
+                                    defaultValue={[result.CompanyID]}
+                                    // @ts-ignore Typings are not considering `native`
+                                    // onChange={handleChangeMultiple}
+                                    label="Company Name"
+                                    // {...register("CompanyID")}
+                                >
+                                    {JSON.parse(sessionStorage.getItem("Companies")).map((item) => (
+                                        <option key={item.CompanyID} value={[item.CompanyID]}>
+                                            {item.CompanyName}
+                                        </option>
+                                    ))}
+                                </Select>
 
-                        // value={convertDate(row.PostedDate)}
-                        size="small"
-                        type="date"
+                            </div>
+                            <div className="col-6" >
+                                <TextField
+                                    label="Title *"
+                                    fullWidth={true}
+                                    multiline
+                                    rows={5}
+                                    // ref={register}
+                                    // defaultValue={row?.Title}
+                                    size="small"
+                                    error={errors.Title ? true : false}
+                                    // helperText = "Required field"
+                                    {...register("Title", { required: true })}
 
-                        {...register("PostedDate")}
-                    // onChange={handleChange}
-                    //onChange={e=> {setUser({...user, name: e.target.value});}}
-                    />
-                    {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            id="PostedDate"
-                            label="Posted Date"
-                            {...register("PostedDate")}
-                            value={value}
+                                // onChange={handleChange}
+                                //onChange={e=> {setUser({...user, name: e.target.value});}}
+                                />
+                                {/* {errors.Title && <span style={{ color: 'red' }}><Error color="error" fontSize="small" title="Example" /> This field is Required</span>} */}
 
-                            // selected={convertDate(row.PostedDate)}
-                            onChange={(newValue) => { setDate(newValue); }}
-                            renderInput={(params) => <TextField size="small"  {...params} />}
+                            </div>
 
-                        />
-                    </LocalizationProvider> */}
-                    <TextField
-                        // id="ExpirationDate"
-                        label="Expiration Date"
-                        // defaultValue={convertDate(row.ExpirationDate)}
-                        size="small"
-                        type="date"
-                        focused
-                        {...register("ExpirationDate")}
-                    // onChange={handleChange}
-                    //onChange={e=> {setUser({...user, name: e.target.value});}}
-                    />
-                    <TextField
-                        // id="Title"
-                        // name="Title"
-                        label="Title"
-                        // ref={register}
-                        // defaultValue={row?.Title}
-                        size="small"
-                        {...register("Title", { required: true, maxLength: 20 })}
-
-                    // onChange={handleChange}
-                    //onChange={e=> {setUser({...user, name: e.target.value});}}
-                    />
-                    {errors.Title && <span style={{ color: 'red' }}><Error color="error" title="Example" />This field is Required</span>}
-
-                    <TextField
-                        // id="Details"
-                        label="Details"
-                        // defaultValue={row?.Details}
-                        size="small"
-                        {...register("Details")}
-                    // onChange={handleChange}
-                    //onChange={e=> {setUser({...user, name: e.target.value});}}
-                    />
+                        </div>
+                        <div className="row">
+                            <div className="col-12">
+                                <TextField
+                                    label="Details"
+                                    fullWidth={true}
+                                    multiline
+                                    rows={5}
+                                    // defaultValue={row?.Details}
+                                    size="small"
+                                    {...register("Details")}
+                                // onChange={handleChange}
+                                //onChange={e=> {setUser({...user, name: e.target.value});}}
+                                />
+                            </div>
+                        </div>
+                    </div>
 
                     <p>{data}</p>
-                    <br />Watch for Title: {title} <br />
                     <br />Watch for All Fields: {watchFields} <br />
                     {/* <input type="submit" /> */}
                 </form>

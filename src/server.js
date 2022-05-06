@@ -3,6 +3,9 @@ const app = express(); //Line 2
 const port = process.env.PORT || 5000; //Line 3
 
 var cors = require('cors')
+var sql = require("mssql");
+
+
 
 app.use(cors()) // Use this after the variable declaration
 
@@ -32,7 +35,6 @@ app.get('/deal_list', (req, res) => { //Line 9
 
 app.get('/deals_list', function (req, res) {
 
-  var sql = require("mssql");
 
   // connect to your database
   sql.connect(config, function (err) {
@@ -41,14 +43,30 @@ app.get('/deals_list', function (req, res) {
 
     // create Request object
     var request = new sql.Request();
+    var query = ` select top 100 
+                  dl.DealID,							 
+                  dl.PostedDate,						
+                  dl.ExpirationDate,				
+                  s.Status,
+                  dl.Title, 
+                  dl.Details,
+                  c.CompanyName,	
+                  (SELECT   c.Category AS 'li' FROM DealsListCategoryProfile AS p WITH(NOLOCK) INNER JOIN Category AS c ON p.CategoryID = c.CategoryID 
+                  WHERE DealID = dl.DealID ORDER BY c.Category  FOR XML path(''),root('ul')) AS Categories 
+                  
+                  from dealslist as dl 
+                  
+                  INNER JOIN CompanyInfo AS c  ON dl.CompanyID = c.CompanyID 
+                  LEFT OUTER JOIN Status AS s ON dl.StatusID = s.StatusID 
+                  order by dl.posteddate desc `
 
     // query to the database and get the records
-    request.query("select top 100 * from dealslist", function (err, recordset) {
+    request.query(query, function (err, recordset) {
 
       if (err) console.log(err)
       //  console.log(recordset)
       // send records as a response
-      res.send(recordset);
+      res.send(recordset.recordset);
 
     });
 
@@ -58,24 +76,109 @@ app.get('/deals_list', function (req, res) {
 
 app.get('/deals_list/:id', function (req, res) {
 
-  console.log("start")
-  var sql = require("mssql");
+  // connect to your database
+  sql.connect(config, function (err) {
+
+    // create Request object
+    var request = new sql.Request();
+    if (err) console.log(err);
+
+    var query = `select top 1 
+    dl.DealID,							 
+    dl.PostedDate,						
+    dl.ExpirationDate,				
+    s.StatusID,
+    dl.Title, 
+    dl.Details,
+    c.CompanyID,	
+                  
+	(SELECT STUFF 
+	(
+		(	select ',' + CAST(c.CategoryID as varchar)  FROM DealsListCategoryProfile AS p WITH(NOLOCK) INNER JOIN Category AS c 
+			ON p.CategoryID = c.CategoryID WHERE DealID = dl.DealID  FOR XML PATH('') ),1,1,''
+	))
+	AS Categories 
+                  
+    from dealslist as dl 
+                  
+    INNER JOIN CompanyInfo AS c  ON dl.CompanyID = c.CompanyID 
+    LEFT OUTER JOIN Status AS s ON dl.StatusID = s.StatusID
+                  
+	where dl.dealid=@dealid`
+
+    // query to the database and get the records
+    request.input('dealid', sql.Int, req.params.id).query(query, function (err, recordset) {
+
+      if (err) console.log(err)
+      console.log(recordset.recordset.at(0))
+      // send records as a response
+      res.send(recordset.recordset.at(0));
+
+    });
+
+  });
+})
+
+app.get('/Categories', function (req, res) {
 
   // connect to your database
   sql.connect(config, function (err) {
 
+    // create Request object
+    var request = new sql.Request();
     if (err) console.log(err);
+
+    // query to the database and get the records
+    request.query("select  top 1 * from Category order by Category", function (err, recordset) {
+
+      if (err) console.log(err)
+      console.log(recordset.recordset)
+      // send records as a response
+      res.send(recordset.recordset);
+
+    });
+
+  });
+})
+
+app.get('/Companies', function (req, res) {
+
+  // connect to your database
+  sql.connect(config, function (err) {
 
     // create Request object
     var request = new sql.Request();
+    if (err) console.log(err);
 
     // query to the database and get the records
-    request.input('dealid', sql.Int, req.params.id).query("select  * from dealslist where dealid=@dealid", function (err, recordset) {
+    request.query("SELECT [CompanyID] ,[CompanyName] FROM [SuperDeals2016].[dbo].[CompanyInfo] order by CompanyName", function (err, recordset) {
 
       if (err) console.log(err)
-       console.log(recordset)
+      console.log(recordset.recordset)
       // send records as a response
-      res.send(recordset);
+      res.send(recordset.recordset);
+
+    });
+
+  });
+})
+
+app.get('/Statuses', function (req, res) {
+
+  // connect to your database
+  sql.connect(config, function (err) {
+
+    // create Request object
+    var request = new sql.Request();
+    if (err) console.log(err);
+
+    // query to the database and get the records
+    request.query("select  * from Status order by status", function (err, recordset) {
+
+      if (err) console.log(err)
+      console.log(recordset.recordset)
+      // send records as a response
+      res.send(recordset.recordset);
 
     });
 

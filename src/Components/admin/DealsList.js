@@ -186,10 +186,6 @@ const DealsList = () => {
     // },
   ];
 
-  const CheckboxColumn = (props) => {
-
-    return <FormControlLabel control={<Checkbox defaultChecked />} label="Label" />
-  }
 
   return (
     <>
@@ -242,7 +238,7 @@ const DealsList = () => {
             density='comfortable'
             getRowId={(row) => row.DealID}
             // loading='true'
-            components={{ Toolbar: GridToolbar, CheckboxColumn: CheckboxColumn }}
+            components={{ Toolbar: GridToolbar}}
 
           />
 

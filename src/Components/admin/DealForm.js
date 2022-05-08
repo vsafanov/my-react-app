@@ -8,6 +8,7 @@ import { DatePicker, DateTimePicker, DesktopDatePicker, LocalizationProvider } f
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Error } from "@mui/icons-material"
 import ClientApi, { method } from "../../ClientApi";
+import InputCalculator from "../calculator/InputCalculator";
 
 
 
@@ -102,7 +103,7 @@ export const DealForm = ({ dealid, ...props }) => {
                         <div className="row">
                             <div className="col-3" >
                                 <TextField
-                                    label="PostedDate"
+                                    label="Posted"
                                     // defaultValue={convertDate(row.ExpirationDate)}
                                     size="small"
                                     type="date"
@@ -114,10 +115,11 @@ export const DealForm = ({ dealid, ...props }) => {
                             </div>
                             <div className="col-3">
                                 <TextField
-                                    label="Expiration Date"
+                                    label="Expires"
                                     // defaultValue={convertDate(row.ExpirationDate)}
                                     size="small"
                                     type="date"
+                                    fontSize = 'large'
                                     focused
                                     {...register("ExpirationDate")}
                                 // onChange={handleChange}
@@ -125,7 +127,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                 />
                             </div>
                             <div className="col-6">
-                                <div style={{ border: '1px solid green' }}>2</div>
+                                <InputCalculator size='small' color='secondary' />
                             </div>
                         </div>
                         <div className="row">

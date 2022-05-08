@@ -3,10 +3,12 @@ import Home from "../deals/Home"
 import { RouteObject } from "react-router-dom"
 import { Outlet, Link, useRoutes, useParams } from "react-router-dom"
 import Layout from '../admin/Layout';
-import Index  from '../admin/Index';
+import Index from '../admin/Index';
 import DealsList from '../admin/DealsList';
 
-import ClientApi, {LoadLookup} from "../../ClientApi";
+import ClientApi, { LoadLookup } from "../../ClientApi";
+import Calculator from "../calculator/Calculator";
+import InputCalculator from "../calculator/InputCalculator";
 
 function App() {
 
@@ -17,7 +19,13 @@ function App() {
   return (
     <>
 
-    {!loading &&     <Home />}
+      {!loading && 
+      <>
+        <br></br>
+        <InputCalculator DefaultValue='55' fontSize="medium"  size="small" />
+      <p style={{textAlign:'center'}}></p>
+        <Home />
+      </>}
     </>
   );
 }

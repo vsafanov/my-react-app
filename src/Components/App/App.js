@@ -12,7 +12,7 @@ import InputCalculator from "../calculator/InputCalculator";
 
 function App() {
 
-  const loading = LoadLookup("Companies")
+  const loading = LoadLookup(['Companies','Statuses','Categories'])
   // alert(loading)
   // <LoadLookup tableName="Companies" />
 

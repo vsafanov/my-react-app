@@ -39,7 +39,7 @@ const ClientApi = (url, method, dataToPost) => {
                 // console.log("Result:",response.data);
                 setResult(response.data);
             } catch (error) {
-                console.log("Error:",error);
+                console.log("Error:", error);
                 setError(error);
                 setIsError(true);
             }
@@ -55,20 +55,19 @@ const ClientApi = (url, method, dataToPost) => {
     return [{ result, loading, error, isError }];
 }
 
-export const LoadLookup = (tableName) =>
-{
-    let [{ result, loading, error, isError }] = ClientApi(`http://localhost:5000/${tableName}`, method.get);
+export const LoadLookup = ((tableNames) => {
 
-   
-    if(!loading)
-    {
-        // alert("Hello",result)
-        sessionStorage.setItem(tableName,JSON.stringify(result))
-    }
+    let isAllDone = false;
+    tableNames.map((tableName) => {
 
-    return loading
+        let [{ result, loading }] = ClientApi(`http://localhost:5000/${tableName}`, method.get)
 
-}
+        sessionStorage.setItem(tableName, JSON.stringify(result))
+
+        return isAllDone && loading
+
+    })
+})
 
 
 // const [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/Companies', method.get);

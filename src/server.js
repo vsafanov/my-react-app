@@ -129,7 +129,7 @@ app.get('/Categories', function (req, res) {
     if (err) console.log(err);
 
     // query to the database and get the records
-    request.query("select  top 1 * from Category order by Category", function (err, recordset) {
+    request.query("select  * from Category order by Category", function (err, recordset) {
 
       if (err) console.log(err)
       console.log(recordset.recordset)

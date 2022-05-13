@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import moment from 'moment';
 import { TextField, Alert, Icon, Grid, MenuItem, Select, FormControl, InputLabel, Menu, Chip } from "@mui/material";
@@ -9,27 +9,24 @@ import { Error } from "@mui/icons-material"
 import ClientApi, { method } from "../../ClientApi";
 import InputCalculator from "../calculator/InputCalculator";
 import SunEditor from 'suneditor-react';
+import textStyle, { fontColor, link } from 'suneditor/src/plugins';
 import 'suneditor/dist/css/suneditor.min.css'; // Import Sun Editor's CSS File
 import { Box } from "@mui/system";
+import mergeTag from "../plugins/merge_tag_plugin";
+
 
 export const DealForm = ({ dealid, ...props }) => {
 
     const [value, setDate] = useState(null);
     const [data, setData] = useState("");
-    const [deal, SetDeal] = useState({})
-    const [category,setCategory] = useState([])
+    // const [deal, SetDeal] = useState({})
+    // const [category, setCategory] = useState([])
 
     const companies = JSON.parse(sessionStorage.getItem("Companies"))
     const categories = JSON.parse(sessionStorage.getItem("Categories"))
-
-
-    const editorTitleConfig = {
-        toolbar: ['bold', 'italic', 'sourceEditing']
-    };
-
+    const statuses = JSON.parse(sessionStorage.getItem("Statuses"))
 
     const myform = useRef()
-
 
     const [{ result, loading, error, isError }] = ClientApi(`http://localhost:5000/deals_list/${dealid}`, method.get);
 
@@ -42,24 +39,23 @@ export const DealForm = ({ dealid, ...props }) => {
 
     });
 
-
     //NEED THIS ONE TO UPDATE defaultValues when request is done
     //GOOD PLACE TO FORMAT ORIGINAL DATA
     useEffect(() => {
         console.log('reset')
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        // defaultValues = {
-        // alert(result)
         if (result) {
 
             result.ExpirationDate = convertDate(result?.ExpirationDate)
             result.PostedDate = convertDate(result?.PostedDate)
 
-            setDate(convertDate(result.PostedDate))
-            console.log('Category', result.Categories, result.Categories?.split(',').map(Number))
+            // setDate(convertDate(result.PostedDate))
+            // console.log('Categories', result.Categories, 'Array IDs', result.Categories?.split(',').map(Number))
 
-            setCategory(result.Categories?.split(',').map(Number)) //convert to num array
+            // setCategory(result.Categories?.split(',').map(Number)) //convert to num array
+
+            setValue('CategoryID', result.Categories?.split(',').map(Number))
+            console.log('GetV', getValues('CategoryID'))
         }
 
         reset(result);
@@ -68,7 +64,7 @@ export const DealForm = ({ dealid, ...props }) => {
 
     // const title = watch("Title", '');
     // const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
-    const watchFields = watch(["Title", "PostedDate"]); // you can also target specific fields by their names
+    const watchFields = watch(["CategoryID"]); // you can also target specific fields by their names
 
     const onSubmit = (data, e) => {
 
@@ -98,6 +94,26 @@ export const DealForm = ({ dealid, ...props }) => {
         return date ? moment(date).format("YYYY-MM-DD") : null;
     };
 
+    //Update SunEditor styles
+    useEffect(() => {
+
+        // console.log('M',document.querySelectorAll('[data-command="merge_tag"]').width = '60px')
+
+        const elements = Array.from(document.getElementsByClassName("se-toolbar sun-editor-common"))
+        elements.map((item) => {
+
+            // console.log('Item', item)
+            return item.setAttribute('style', 'z-index:auto')
+
+        })
+        const btns = Array.from(document.querySelectorAll('[data-command="merge_tag"]'))
+        btns.map((item) => {
+
+            //  console.log('B', item)
+            return item.setAttribute('style', 'width:50px')
+
+        })
+    }, [loading]);
 
     return (
         <>
@@ -106,8 +122,6 @@ export const DealForm = ({ dealid, ...props }) => {
             {!loading && !isError && (
 
                 <form id={props?.id} onSubmit={handleSubmit(onSubmit, onError)}>
-
-                    {/* <input type="date" defaultValue={convertDate(row.PostedDate)} {...register("PostedDate")} placeholder="Posted Date" /> */}
                     <div>
                         <div className="row">
                             <div className="col-3" >
@@ -137,7 +151,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                 />
                             </div>
                             <div className="col-6">
-                                <InputCalculator size='small' color='secondary' />
+                                <InputCalculator size='small' />
                             </div>
                         </div>
                         <div className="row">
@@ -163,21 +177,25 @@ export const DealForm = ({ dealid, ...props }) => {
                                 </TextField>
                             </div>
                             <div className="col-3" >
-                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px'}} >
-                                    <InputLabel  htmlFor="id" >
+                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px' }} >
+                                    <InputLabel htmlFor="id" >
                                         Category
                                     </InputLabel>
                                     <Select
-                                        {...register("CategoryID")}
-                                        style={{ overflow:'clip',maxHeight: '160px'}}
-                                        size = 'small'
+
+                                        style={{ overflow: 'clip', maxHeight: '160px' }}
+                                        size='small'
                                         multiple
-                                        
+
                                         // native
                                         // defaultValue={result.Categories?.split(',').map(Number)} // must convert to numerric array
-                                         value = {category}
-                                        
-                                        onChange={(e) => {setCategory(e.target.value)}} 
+                                        //  value = {category}
+                                        value={getValues('CategoryID') || result.Categories?.split(',').map(Number)}
+                                        // setValue={getValues('CategoryID')|| result.Categories?.split(',').map(Number)}  
+                                        onChange={(e) => {
+                                            // setCategory(e.target.value); 
+                                            setValue('CategoryID', e.target.value)
+                                        }}
                                         label="Category"
                                         renderValue={(selected) =>
                                         (
@@ -185,13 +203,18 @@ export const DealForm = ({ dealid, ...props }) => {
                                                 {
                                                     selected.map((id) => (
                                                         // console.log(selected, 'Value=', value, 'Tostring', value?.toString())
-                                                        <Chip size="small" key={id} label={categories.find(x => x.CategoryID === parseInt(id))?.Category} 
-                                                        onMouseDown={(event) => { event.stopPropagation();}}
-                                                        onDelete={()=> {setCategory(selected.filter(entry => entry !== id)) }}/>
+                                                        <Chip size="small" key={id} label={categories.find(x => x.CategoryID === parseInt(id))?.Category}
+                                                            onMouseDown={(event) => { event.stopPropagation(); }}
+                                                            onDelete={() => {
+                                                                // setCategory(selected.filter(entry => entry !== id)); 
+                                                                setValue('CategoryID', selected.filter(entry => entry !== id))
+                                                            }}
+                                                        />
                                                     ))
                                                 }
                                             </Box>
                                         )}
+                                    // {...register("CategoryID")} //!!! Somehow brealing form
                                     >
                                         {categories.map((item) => (
 
@@ -205,44 +228,71 @@ export const DealForm = ({ dealid, ...props }) => {
                             </div>
                             <div className="col-6" >
                                 <SunEditor
-                                    {...register("Title")}
+                                    // {...register("Title")}
                                     name='Title'
+                                    height="120"
                                     defaultValue={result.Title}
-                                    // setContents = 'Hello'
+                                    className='sun-editor-editable-custom'
+                                    // setContents = {result.Title}                                    
                                     onChange={(data) => setValue('Title', data)}
+                                    setOptions={{
+                                        className: 'sun-editor-custom',
+                                        defaultTag: 'div',
+                                        plugins: [
+                                            mergeTag
+                                        ],
+                                        buttonList: [
+                                            ['codeView'], ["undo", "redo"], ["removeFormat"], ["bold"],
+                                            [
+                                                {
+                                                    name: 'merge_tag',
+                                                    dataCommand: 'merge_tag',
+                                                    buttonClass: 'phrases',
+                                                    title: 'Phrases',
+                                                    dataDisplay: 'submenu',
+                                                    innerHTML: "Phrases"
+                                                }
+                                            ]
+                                        ]
+                                    }}
                                 />
-
                             </div>
-
                         </div>
-                        {/* <div className="row">
-                            <div className="col-12">
-                                <TextField
-                                    label="Details"
-                                    fullWidth={true}
-                                    multiline
-                                    rows={5}
-                                    // defaultValue={row?.Details}
-                                    size="small"
-                                    {...register("Details")}
-                                // onChange={handleChange}
-                                //onChange={e=> {setUser({...user, name: e.target.value});}}
-                                />
-                            </div>
-                        </div> */}
+
                         <div className="row ">
                             <div className="col-12">
 
                                 <SunEditor
-                                    {...register("Details")}
+                                    // {...register("Details")}
                                     height='200'
-                                    name='Title'
+                                    name='Details'
                                     defaultValue={result.Details}
-                                    // setContents = 'Hello'
+                                    // setContents = {result.Title}                                    
                                     onChange={(data) => setValue('Details', data)}
+                                    setOptions={{
+                                        className: 'sun-editor-custom',
+                                        defaultTag: 'div',
+                                        plugins: [
+                                            mergeTag,
+                                            fontColor,
+                                            link
+                                        ],
+                                        buttonList: [
+                                            ['codeView'], ['preview'], ["undo", "redo"], ['bold','italic'], 
+                                            [
+                                                {
+                                                    name: 'merge_tag',
+                                                    dataCommand: 'merge_tag',
+                                                    buttonClass: 'phrases',
+                                                    title: 'Phrases',
+                                                    dataDisplay: 'submenu',
+                                                    innerHTML: "Phrases"
+
+                                                }
+                                            ],['list'],['link'],["fontColor"],["removeFormat"],
+                                        ]
+                                    }}
                                 />
-
-
                             </div>
                         </div>
                     </div>
@@ -255,3 +305,5 @@ export const DealForm = ({ dealid, ...props }) => {
         </>
     )
 }
+
+/* get components from their class name: */

@@ -19,14 +19,29 @@ code {
 } */
 
 
-.card-size
-{
-    min-width: 360px;
-    max-height: 300px;
-    margin: 5px 5px;
+.card-size {
+  min-width: 360px;
+  max-height: 300px;
+  margin: 5px 5px;
 }
 
-.grid-header{
+.grid-header {
   /* font-weight: 900; */
   font-size: 14px;
+}
+
+.phrases {
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+div .sun-editor-custom {
+  font-family: Arial;
+  font-size: 13px;
+  padding: 5px;
+}
+
+.sun-editor-button{
+  font-family: Arial;
+  font-size: 16px;
 }

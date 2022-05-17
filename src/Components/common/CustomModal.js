@@ -1,6 +1,4 @@
 
-import { Label, Save } from "@mui/icons-material";
-import { TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 
@@ -19,33 +17,6 @@ const CustomModal = ({ onSave, ShowSaveButton, AddButton, ...rest }) => {
         p: 4,
     };
 
-    const [formData, setFormData] = useState('')
-    const [user, setUser] = useState({})
-
-    const myUser = {
-        name: "Max",
-        email: "test@hotmail.com"
-    }
-
-
-    useEffect(() => {
-        // alert(JSON.stringify(myUser, null, 2))
-        setUser(myUser)
-    }, [rest.id])
-
-
-
-    const handleChange = e => {
-        e.preventDefault()
-        let key = { name: e.target.value }
-        setUser({ ...user, ...key });
-    }
-
-    const handleSubmit = e => {
-        e.preventDefault()
-
-        alert(JSON.stringify(user, null, 2))
-    }
 
     // !!!!!!!!!!! VERY IMPORTANT TO SEPARATE EVENT WITH REST OF PROPS  !!!!!!!!!!!!!!!!!
     //   const { onSave, ...rest } = props
@@ -54,15 +25,15 @@ const CustomModal = ({ onSave, ShowSaveButton, AddButton, ...rest }) => {
     return (
         <>
             <Modal {...rest} >
-                <Modal.Header closeButton>
-                    <Modal.Title>{rest.title} </Modal.Title>
+                <Modal.Header closeButton style={{cursor:'default'}}>
+                    <Modal.Title>{rest.label} </Modal.Title>
                 </Modal.Header>
-                <Modal.Body >
+                <Modal.Body style={{cursor:'default'}}>
 
                     {rest.children}
 
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer style={{cursor:'default'}}>
                     <Button variant="secondary" onClick={rest.onHide}>
                         Close
                     </Button>
@@ -73,13 +44,10 @@ const CustomModal = ({ onSave, ShowSaveButton, AddButton, ...rest }) => {
                         </Button>
                         : ''
                     }
-
                     {AddButton}
 
                 </Modal.Footer>
             </Modal>
-
-
         </>
     )
 }

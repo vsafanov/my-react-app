@@ -1,8 +1,9 @@
 import { Alert, AlertTitle, Backdrop, Button, Checkbox, CircularProgress, FormControlLabel, TextField } from "@mui/material";
 import axios from "axios";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { DataGrid, GridActionsCellItem, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridToolbar, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, useGridApiRef } from '@mui/x-data-grid';
 import moment from 'moment';
+import { confirm } from "react-confirm-box";
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 
@@ -13,7 +14,6 @@ import ClientApi, { method } from "../../ClientApi";
 
 function getFormattedDate(params) {
   return moment(params.row.PostedDate).format('MM-DD-YYYY');
-
 }
 
 function ErrorAlert(props) {
@@ -31,19 +31,17 @@ function ErrorAlert(props) {
 }
 const DealsList = () => {
 
-
-
   const [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list', method.get);
 
   const [modalShow, setModalShow] = useState(false);
   const [dealId, setDealId] = useState('');
+  const [selectionModel, setSelectionModel] = useState([]);
 
   const OpenDetails = (dealId) => {
     //alert(dealId)
     setDealId(dealId)
     setModalShow(true)
   }
-
 
   const childFunc = useRef({})
 
@@ -55,7 +53,6 @@ const DealsList = () => {
     alert("DealsList" + dealId);
     console.log(dealId)
   }
-
 
   const MyButton = () => {
     return <Button variant="contained" form='dealForm' type="submit" onClick={() => alert('test')}>Custom Save</Button>
@@ -187,16 +184,42 @@ const DealsList = () => {
   ];
 
 
+  const handleDelete = async () => {
+
+    // const ids = Array.from(selectionModel).map((item)=> item.DealID + ',')
+
+    const result = await confirm(`You are about to delete next records: ${selectionModel} Are you sure?`);
+    if (result) {
+
+      console.log("You click yes!");
+      return;
+    }
+    console.log("You click No!");
+  };
+
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarExport />
+        <Button variant="outlined" style={{ margin: '0 5px 0 5px' }} size="small" onClick={() => OpenDetails(0)}>Add New Deal</Button>
+        <Button variant="outlined" color="warning" size="small" onClick={handleDelete}>Delete</Button>
+      </GridToolbarContainer>
+    );
+  }
+
   return (
     <>
-
       {/* <DealDetails show={modalShow} id={dealId} onHide={() => setModalShow(false)} onSave={()=>onSave()} /> */}
       <CustomModal
         size="lg"
 
         show={modalShow}
         id={dealId}
-        title={`Edit deal # ${dealId}`}
+        label={dealId === 0 ? `Create New Deal` : `Edit deal # ${dealId}`}
+        
         onHide={() => setModalShow(false)}
         // onSave={onSave}
         ShowSaveButton={true}
@@ -218,13 +241,8 @@ const DealsList = () => {
       {!loading && !isError && (
 
         <div style={{ height: 800, width: '100%' }}>
-          
 
-          {/* <input type="checkbox" title={(row)=>row.dealId}></input> */}
           <DataGrid
-
-            // autoPageSize
-
             sx={{ 'fontSize': '12px' }}
             headerHeight={30}
             autoHeight={true}
@@ -237,12 +255,27 @@ const DealsList = () => {
             disableSelectionOnClick
             density='comfortable'
             getRowId={(row) => row.DealID}
+            key={(row) => row.DealID}
             // loading='true'
-            components={{ Toolbar: GridToolbar}}
+            components={{ Toolbar: CustomToolbar }}
 
+            onSelectionModelChange={(ids) => {
+
+              //Keep this comment for feature use
+              // const selectedIDs = new Set(ids);
+              // const selectedRowData = result.filter((row) =>
+              //   selectedIDs.has(row.DealID)
+              // );
+              // setSelectionModel(selectedRowData)
+              // console.log(selectedRowData);
+
+              setSelectionModel(ids)
+              console.log(ids);
+            }}
           />
-
+          {/* <div>X: {Array.from(selectionModel).map((item)=>(<b>{item.DealID}<br></br></b>))}</div> */}
         </div>
+
       )
       }
 

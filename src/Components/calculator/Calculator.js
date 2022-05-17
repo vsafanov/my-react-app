@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import './calculator.css';
 import ResultComponent from './ResultComponent';
 import KeyPadComponent from "./KeyPadComponent";
 
 
-const Calculator = ({ DefaultValue, Show, onShow, onUpdateParentInput },) => {
+const Calculator = ({ DefaultValue, Show, onShow, onUpdateParentInput, ...other },) => {
 
     const [result, SetResult] = useState(DefaultValue || 0)
-
 
     //Update Result panel when calendar opens (Show = true)
     useEffect(() => {
@@ -117,7 +116,7 @@ const Calculator = ({ DefaultValue, Show, onShow, onUpdateParentInput },) => {
                 calc = calc.substring(1, 12) || ""
             }
             //add 0 if it's float value between 0 and 1
-            if(calc < 1 && calc > 0) calc = '0' + calc
+            if (calc < 1 && calc > 0) calc = '0' + calc
             SetResult(calc + "")
 
         } catch (e) {
@@ -135,11 +134,31 @@ const Calculator = ({ DefaultValue, Show, onShow, onUpdateParentInput },) => {
         result.toString().length === 1 ? SetResult(0) : SetResult(result.toString().slice(0, -1))
     };
 
+    const closeCalendar = (event => {
+
+        const concernedElement = document.querySelector(".calculator-body");
+        if (concernedElement?.contains(event.target)) {
+            console.log("Clicked Inside");
+        } else {
+            console.log("Clicked Outside / Elsewhere");
+            onShow(false)
+        }
+    });
+
+
+    useEffect(() => {
+        
+        document.addEventListener("mousedown", closeCalendar);
+
+        return () => { document.removeEventListener("mousedown", closeCalendar) };
+
+    }, [])
+
 
     return (
         <>
             {Show &&
-                <div style={{position:'absolute',zIndex:10}}>
+                <div style={{ position: 'absolute', zIndex: 10 }}  >
                     <div className="calculator-body">
                         <ResultComponent result={result} />
                         <KeyPadComponent onClick={onClick} />

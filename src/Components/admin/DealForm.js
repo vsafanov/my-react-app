@@ -9,10 +9,10 @@ import { Error } from "@mui/icons-material"
 import ClientApi, { method } from "../../ClientApi";
 import InputCalculator from "../calculator/InputCalculator";
 import SunEditor from 'suneditor-react';
-import textStyle, { fontColor, link } from 'suneditor/src/plugins';
 import 'suneditor/dist/css/suneditor.min.css'; // Import Sun Editor's CSS File
 import { Box } from "@mui/system";
-import mergeTag from "../plugins/merge_tag_plugin";
+import { optionsDetails, optionsTitle } from "../../config";
+import IcecreamTwoTone from '@mui/icons-material/IcecreamTwoTone';
 
 
 export const DealForm = ({ dealid, ...props }) => {
@@ -20,7 +20,8 @@ export const DealForm = ({ dealid, ...props }) => {
     const [value, setDate] = useState(null);
     const [data, setData] = useState("");
     // const [deal, SetDeal] = useState({})
-    // const [category, setCategory] = useState([])
+    const [category, setCategory] = useState([])
+
 
     const companies = JSON.parse(sessionStorage.getItem("Companies"))
     const categories = JSON.parse(sessionStorage.getItem("Categories"))
@@ -35,7 +36,8 @@ export const DealForm = ({ dealid, ...props }) => {
     const { register, watch, formState: { errors }, handleSubmit, control, reset, getValues, setValue } = useForm({
 
         defaultValues: { result },
-        mode: "onChange"
+        mode: "onChange",
+        reValidateMode: 'onChange',
 
     });
 
@@ -47,22 +49,24 @@ export const DealForm = ({ dealid, ...props }) => {
         if (result) {
 
             result.ExpirationDate = convertDate(result?.ExpirationDate)
-            result.PostedDate = convertDate(result?.PostedDate)
+            result.PostedDate = convertDate(result?.PostedDate) || convertDate(new Date())
 
             // setDate(convertDate(result.PostedDate))
             // console.log('Categories', result.Categories, 'Array IDs', result.Categories?.split(',').map(Number))
 
-            // setCategory(result.Categories?.split(',').map(Number)) //convert to num array
+            setCategory(result.Categories?.split(',').map(Number) || []) //convert to num array
 
-            setValue('CategoryID', result.Categories?.split(',').map(Number))
-            console.log('GetV', getValues('CategoryID'))
-        }
-
+            // setValue('CategoryID', result?.Categories?.split(',').map(Number) || [])
+            // result?.Categories && setValue('CategoryID', result?.Categories === "" ? [] : result?.Categories.split(',').map(Number))
+            console.log('GetV', category)
+        
         reset(result);
-    }, [reset, result])
+
+    }
+
+    }, [result])
 
 
-    // const title = watch("Title", '');
     // const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
     const watchFields = watch(["CategoryID"]); // you can also target specific fields by their names
 
@@ -97,8 +101,6 @@ export const DealForm = ({ dealid, ...props }) => {
     //Update SunEditor styles
     useEffect(() => {
 
-        // console.log('M',document.querySelectorAll('[data-command="merge_tag"]').width = '60px')
-
         const elements = Array.from(document.getElementsByClassName("se-toolbar sun-editor-common"))
         elements.map((item) => {
 
@@ -115,43 +117,72 @@ export const DealForm = ({ dealid, ...props }) => {
         })
     }, [loading]);
 
+    const handleChange = (e) => {        
+        setCategory(e.target.value);
+        setValue('CategoryID', e.target.value, true) //update for validation
+        console.log('C',e.target.value)
+    }
+
     return (
         <>
-            {<b>Title: {getValues("Title")}</b>}
-            <br /><br />
-            {!loading && !isError && (
+            {/* {<b>Title: {getValues("Title")}</b>} */}
 
-                <form id={props?.id} onSubmit={handleSubmit(onSubmit, onError)}>
+            {!loading && !isError && (
+                <form id={props?.id} onSubmit={handleSubmit(onSubmit, onError)} >
                     <div>
                         <div className="row">
                             <div className="col-3" >
                                 <TextField
-                                    fontSize={10}
                                     label="Posted"
+                                    fullWidth={true}
                                     // defaultValue={convertDate(row.ExpirationDate)}
                                     size="small"
                                     type="date"
+                                    InputProps={{ style: { fontSize: 14 } }}
                                     focused
                                     {...register("PostedDate")}
                                 // onChange={handleChange}
-                                //onChange={e=> {setUser({...user, name: e.target.value});}}
                                 />
                             </div>
                             <div className="col-3">
                                 <TextField
                                     label="Expires"
+                                    fullWidth={true}
                                     // defaultValue={convertDate(row.ExpirationDate)}
                                     size="small"
                                     type="date"
                                     fontSize='large'
                                     focused
                                     {...register("ExpirationDate")}
-                                // onChange={handleChange}
-                                //onChange={e=> {setUser({...user, name: e.target.value});}}
+                                    InputProps={{ style: { fontSize: 14 } }}
+                                // InputLabelProps={{ style: { fontSize: 8 } }}
+
+                                // onChange={handleChange}                                
                                 />
                             </div>
-                            <div className="col-6">
-                                <InputCalculator size='small' />
+                            <div className="col-3">
+                                <InputCalculator size='small' /> {/*  DefaultValue={10}  Icon={<IcecreamTwoTone />} /> */}
+                            </div>
+                            <div className="col-3">
+                                <TextField
+                                    // style={{fontSize:'12px'}}
+                                    fullWidth={true}
+                                    // margin="normal"
+                                    size='small'
+                                    select
+                                    label="Status"
+                                    InputProps={{ style: { fontSize: 14 } }}
+                                    // value = {[]}
+                                    defaultValue={result.StatusID || 1}
+                                    {...register("StatusID")}
+                                // helperText="Please select your currency"
+                                >
+                                    {statuses.map((item) =>
+                                        <MenuItem key={item.StatusID} value={item.StatusID} >
+                                            {item.Status}
+                                        </MenuItem>
+                                    )}
+                                </TextField>
                             </div>
                         </div>
                         <div className="row">
@@ -163,9 +194,9 @@ export const DealForm = ({ dealid, ...props }) => {
                                     size='small'
                                     select
                                     label="Company"
-
+                                    InputProps={{ style: { fontSize: 14 } }}
                                     // value = {[]}
-                                    defaultValue={result.CompanyID}
+                                    defaultValue={result.CompanyID || 755}
                                     {...register("CompanyID")}
                                 // helperText="Please select your currency"
                                 >
@@ -178,120 +209,85 @@ export const DealForm = ({ dealid, ...props }) => {
                             </div>
                             <div className="col-3" >
                                 <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px' }} >
-                                    <InputLabel htmlFor="id" >
-                                        Category
-                                    </InputLabel>
+                                    <InputLabel error={errors.CategoryID?.type === 'required'}>  Category </InputLabel>
                                     <Select
-
                                         style={{ overflow: 'clip', maxHeight: '160px' }}
                                         size='small'
+                                        error={errors.CategoryID?.type === 'required'}
                                         multiple
+                                        value={category} //{getValues('CategoryID')||result?.Categories?.split(',').map(Number)} //
 
-                                        // native
-                                        // defaultValue={result.Categories?.split(',').map(Number)} // must convert to numerric array
-                                        //  value = {category}
-                                        value={getValues('CategoryID') || result.Categories?.split(',').map(Number)}
-                                        // setValue={getValues('CategoryID')|| result.Categories?.split(',').map(Number)}  
-                                        onChange={(e) => {
-                                            // setCategory(e.target.value); 
-                                            setValue('CategoryID', e.target.value)
-                                        }}
                                         label="Category"
                                         renderValue={(selected) =>
                                         (
                                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                                 {
-                                                    selected.map((id) => (
-                                                        // console.log(selected, 'Value=', value, 'Tostring', value?.toString())
+                                                    selected?.map((id) => (
                                                         <Chip size="small" key={id} label={categories.find(x => x.CategoryID === parseInt(id))?.Category}
                                                             onMouseDown={(event) => { event.stopPropagation(); }}
                                                             onDelete={() => {
-                                                                // setCategory(selected.filter(entry => entry !== id)); 
-                                                                setValue('CategoryID', selected.filter(entry => entry !== id))
+                                                                // setValue('CategoryID', selected.filter(entry => entry !== id))
+
+                                                                var result = selected.filter(entry => entry !== id)
+                                                                setCategory(result || [])
+                                                                setValue('CategoryID', result, true)//update for validation
+                                                                console.log(getValues('CategoryID'))
                                                             }}
                                                         />
                                                     ))
+
                                                 }
                                             </Box>
                                         )}
-                                    // {...register("CategoryID")} //!!! Somehow brealing form
+                                        // ref={null}
+                                        {...register("CategoryID", {
+                                            onChange: (e) => handleChange(e),
+                                            //onChange:(e)=>setValue('CategoryID',e.target.value), 
+                                            required: true
+                                        })}
+                                    //  onChange={(e)=>setValue('CategoryID',e.target.value)} //MUST BE AFTER register
                                     >
                                         {categories.map((item) => (
-
                                             <MenuItem key={item.CategoryID} value={item.CategoryID} >
                                                 {item.Category}
                                             </MenuItem>
                                         ))}
                                     </Select>
+                                    {/* {errors.CategoryID?.type === 'required' && "Category is required"} */}
                                 </FormControl>
 
                             </div>
                             <div className="col-6" >
+                                <InputLabel style={{ fontSize: '12px' }} error={errors.Title?.type === 'required'}>  Title </InputLabel>
                                 <SunEditor
-                                    // {...register("Title")}
+                                    {...register("Title", { required: true })}
+                                    style={{ margin: '16px' }}
                                     name='Title'
                                     height="120"
                                     defaultValue={result.Title}
-                                    className='sun-editor-editable-custom'
+                                    className='sun-editor-custom '
                                     // setContents = {result.Title}                                    
-                                    onChange={(data) => setValue('Title', data)}
-                                    setOptions={{
-                                        className: 'sun-editor-custom',
-                                        defaultTag: 'div',
-                                        plugins: [
-                                            mergeTag
-                                        ],
-                                        buttonList: [
-                                            ['codeView'], ["undo", "redo"], ["removeFormat"], ["bold"],
-                                            [
-                                                {
-                                                    name: 'merge_tag',
-                                                    dataCommand: 'merge_tag',
-                                                    buttonClass: 'phrases',
-                                                    title: 'Phrases',
-                                                    dataDisplay: 'submenu',
-                                                    innerHTML: "Phrases"
-                                                }
-                                            ]
-                                        ]
-                                    }}
+                                    onChange={(data) => { setValue('Title', data, true) }}
+                                    setOptions={optionsTitle}
+                                    ref={null}
+
                                 />
+                                {/* {errors.CategoryID?.type === 'required' && "Title is required"} */}
                             </div>
                         </div>
 
                         <div className="row ">
                             <div className="col-12">
-
+                                <InputLabel style={{ fontSize: '12px' }} error={errors.Details?.type === 'required'}>  Details </InputLabel>
                                 <SunEditor
-                                    // {...register("Details")}
+                                    {...register("Details", { required: true })}
                                     height='200'
                                     name='Details'
                                     defaultValue={result.Details}
                                     // setContents = {result.Title}                                    
-                                    onChange={(data) => setValue('Details', data)}
-                                    setOptions={{
-                                        className: 'sun-editor-custom',
-                                        defaultTag: 'div',
-                                        plugins: [
-                                            mergeTag,
-                                            fontColor,
-                                            link
-                                        ],
-                                        buttonList: [
-                                            ['codeView'], ['preview'], ["undo", "redo"], ['bold','italic'], 
-                                            [
-                                                {
-                                                    name: 'merge_tag',
-                                                    dataCommand: 'merge_tag',
-                                                    buttonClass: 'phrases',
-                                                    title: 'Phrases',
-                                                    dataDisplay: 'submenu',
-                                                    innerHTML: "Phrases"
-
-                                                }
-                                            ],['list'],['link'],["fontColor"],["removeFormat"],
-                                        ]
-                                    }}
+                                    onChange={(data) => setValue('Details', data, true)}
+                                    setOptions={optionsDetails}
+                                    ref={null}
                                 />
                             </div>
                         </div>

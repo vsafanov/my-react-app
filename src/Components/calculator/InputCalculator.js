@@ -16,24 +16,25 @@ const InputCalculator = ( props) => {
 
         return  (
             <IconButton color='primary' title="Show/hide calculator" onClick={handleClick} {...props}>
-                <CalculateOutlinedIcon fontSize="medium" />
+                {props.Icon || <CalculateOutlinedIcon fontSize="medium" />}
             </IconButton>
         )
     }
 
+    
+
     return (
         <>
             <TextField
-                style={{ width: '200px' }}
+                style={{ width: props.InputWidth || '200px' }}
                 label="Calculator"
-                // DefaultValue = {DefaultValue}
                 value={value}
                 size="large"
                 onChange={(e) => SetValue(e.target.value)}
-                InputProps={{ endAdornment: <CalcButton /> }}
+                InputProps={{ endAdornment: <CalcButton />, style:{fontSize:props.InputFontSize || 14}}}
                 {...props}
             />
-            <Calculator Show={show} onShow={SetShow} DefaultValue={value} onUpdateParentInput={SetValue} />
+            <Calculator Show={show} onBlur={()=> {alert('Blur');SetShow(false)}} onShow={SetShow} DefaultValue={value} onUpdateParentInput={SetValue} />
         </>
     );
 

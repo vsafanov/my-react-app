@@ -58,7 +58,7 @@ const Layout = () => {
     console.log(`Current path: ${location.pathname},  do not exist in array: ${!menuItems.some((item) => item.path === location.pathname)}`)
 
     useEffect(() => {
-        if (!menuItems.some((item) => item.path === location.pathname)) {
+        if (!menuItems.some((item) => item.path.toLowerCase() === location.pathname.toLowerCase())) {
             navigateTo(defaultPath);
         }
     });
@@ -107,21 +107,6 @@ const Layout = () => {
                     ))
                 }
                 <div></div>
-                {
-                    // menuItems.map((item) => (
-                    //     // <Link style={{padding:'8px'}} key={item.text} to={item.path} color='primary'>{item.text}</Link>
-                    //     <Tab
-                    //         sx={{ borderBottom: location.pathname === item.path ? 2 : 0 }}
-                    //         label={item.text}
-                    //         style={{ fontWeight: '600', fontFamily: "Roboto" }}
-                    //         key={item.text}
-                    //         selected={location.pathname === item.path ? true : false}
-                    //         textColor='primary'
-                    //         onClick={() => navigateTo(item.path)}
-                    //     >
-                    //     </Tab>
-                    // ))
-                }
 
             </Box>
 

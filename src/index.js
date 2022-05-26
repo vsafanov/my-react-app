@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer, useState } from 'react';
 import ReactDOM from 'react-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import './index.css';
@@ -14,6 +14,7 @@ import {
 import Home from './Components/deals/Home';
 import App from './Components/App/App';
 import Layout from './Components/admin/Layout';
+import HomeLayout from './Components/deals/HomeLayout';
 import { adminRoutes } from './routes';
 
 const theme = createTheme({
@@ -22,24 +23,36 @@ const theme = createTheme({
   },
 });
 
+const childEvent = {
+  click: (value) => {
+    console.log('childEvent', value)
+  }
+}
+
+const Search = (value) => {
+  console.log('Search', value)
+  childEvent.click(value)
+}
+
+
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<App />} >
-            <Route path="deal" element={<Home />} />
+          <Route path="/" element={<HomeLayout Search={Search} />} >
+            <Route path="deal" element={<Home events={childEvent} />} />
           </Route>
-          <Route path='admin' element={<Layout />}> 
+          <Route path='admin' element={<Layout />}>
             {
               adminRoutes.map(route => {
                 return <Route key={route.path} path={route.path} element={route.component} />
-                
+
               })
             }
             {/* <Route path='index' element={<Index />} /> 
             <Route path='DealsList' element={<DealsList />} />  */}
-            
+
           </Route>
           <Route
             path="*"

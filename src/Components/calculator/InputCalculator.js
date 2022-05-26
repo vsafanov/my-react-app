@@ -19,9 +19,7 @@ const InputCalculator = ( props) => {
                 {props.Icon || <CalculateOutlinedIcon fontSize="medium" />}
             </IconButton>
         )
-    }
-
-    
+    }  
 
     return (
         <>
@@ -37,7 +35,6 @@ const InputCalculator = ( props) => {
             <Calculator Show={show} onBlur={()=> {alert('Blur');SetShow(false)}} onShow={SetShow} DefaultValue={value} onUpdateParentInput={SetValue} />
         </>
     );
-
 }
 
 export default InputCalculator

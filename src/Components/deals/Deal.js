@@ -1,45 +1,41 @@
-import { useState}  from "react"
 import { Card } from "react-bootstrap"
-import { Button  } from "@mui/material"
-import AlarmIcon from '@mui/icons-material/Alarm'
-import Icon from '@mui/material/Icon'
-import { red } from '@mui/material/colors';
-import {Typography} from '@mui/material'
+import InfoIcon from '@mui/icons-material/Info'
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import { Typography } from '@mui/material'
+import CardFooter from "./CardFooter";
 
-const Deal = ({deal}) => {
+const Deal = ({ deal, cardWidth, showDetails, showEmail }) => {
 
-    const {ASIN,Title, Feature,ExpiresToday} = deal || {};
-    
-     const [cardWidth,SetCardWidth] = useState("23%"); 
-     const [borderColor,SetBorderColor] = useState("border-success"); 
-    // const [description,SetDescription] = useState("");
-
+    const { color, borderColor, Icon } = CardFooter(deal)
 
     return (
-        <Card id={ASIN} key={ASIN} style={{width:cardWidth}} className={`${borderColor} card-size`}>
-            <Card.Body className="overflow-hidden" style={{padding:'8px'}}>
-            {/* <Card.Title></Card.Title> */}
-                {/* <Card.Subtitle className="mb-2 text-muted"> */}
-                    
-                {/* </Card.Subtitle> */}
-                <Card.Text>
-                <b><a href='Amazon.com' >{Title}</a></b><br/>
-                   {Feature}
-                </Card.Text>
-                
-                {/* <Card.Link href="#">Another Link</Card.Link> */}
-            </Card.Body>
-            <Card.Footer href="#"  className= {`card-footer bg-transparent ${borderColor}`}>
+        <>
+            {Icon &&
+                <Card id={deal.DealID} key={deal.DealID} style={{ width: cardWidth }} className={`${borderColor} card-size`}>
+                    <Card.Body className="overflow-hidden" style={{ padding: '8px' }}>
+                        <Card.Text dangerouslySetInnerHTML={{ __html: deal.Details }} />
+                    </Card.Body>
+                    <Card.Footer href="#" className={`card-footer bg-transparent ${borderColor}`}>
 
-            <Typography color="error" fontSize='small' >
-                <AlarmIcon color="error" fontSize='small'  /> <b>Expired</b>
-            </Typography>
-            <h6 className="error" color="red">
-                <AlarmIcon sx={{ color: red[500] }} fontSize='small' /> Expired
-            </h6>
-            <Button variant='text' color="secondary" startIcon={<AlarmIcon />}>Expired</Button>
-                </Card.Footer>
-        </Card>
+                        <div className="row">
+                            <div className="col-8" >
+                                <Typography color={color} fontSize='small' >
+                                    {Icon}
+                                </Typography>
+                            </div>
+                            <div className="col-4" style={{ textAlign: 'right' }}>
+                                {/* <IconButton  > */}
+                                <InfoIcon color="info" fontSize='medium' onClick={() => showDetails(deal)} style={{ cursor: 'pointer' }} />
+                                {/* </IconButton> */}
+                                <ForwardToInboxIcon style={{ color: 'burlywood',cursor: 'pointer' }} onClick={() => showEmail(deal)} fontSize='medium' />
+                            </div>
+                        </div>
+
+
+                    </Card.Footer>
+                </Card>
+            }
+        </>
     )
 
 }

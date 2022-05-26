@@ -1,58 +1,108 @@
 import axios from "axios";
 import { Buffer } from 'buffer';
 import React, { useEffect, useState } from "react"
+import CustomModal from "../common/CustomModal";
 import Deal from "./Deal"
+import DealsLayout from "./DealsLayout";
+import CardFooter from "./CardFooter";
+import { Typography } from "@mui/material";
+import HomeLayout from "./HomeLayout";
+
+function DealsList({ items }) {
+
+    const [cardWidth, SetCardWidth] = useState("23%");
+    const [layout, setLayout] = useState('multiple');
+    const [modalShow, setModalShow] = useState(false);
+    const [showModalEmail, setShowModalEmail] = useState(false);
+    const [deal, setDeal] = useState({});
+    const [tab, setTab] = useState(1);
+    const [dealsList, setDealsList] = useState(items);
 
 
-function DealsList({items}) {
+    const UpdateCardWidth = (e, val) => {
+        setLayout(val)
+        let width = "23%"
+        switch (val) {
+            case 'single':
+                width = "98%"
+                break;
+            case 'double':
+                width = "49%"
+                break;
+            default:
+                break;
+        }
+        SetCardWidth(width)
+    }
 
-    
+    const showDetails = (deal) => {
 
-    // useEffect(() => {
-    //     (async () => {
-    //         const response = await axios.get(`http://localhost:5000/deal-list`);
+        // console.log(deal)
+        setDeal(deal)
+        setModalShow(true)
+    }
 
-    //         items = response.data;
-    //         console.log(response.data);
-    //     }
-    //     )()
-    // }, []);
+    const showEmail = (deal) => {
+        // console.log(deal)
+        setDeal(deal)
+        setShowModalEmail(true)
+    }
 
+    const handleTabChange = (e, selectedTab) => {
+        console.log(selectedTab)
+        switch (selectedTab) {
+            case 2:
+                setDealsList(items.filter(item => item.Status === 'Expires Today'))
+                break;
+            case 3:
+                setDealsList(items.filter(item => item.Status === 'Active'))
+                break;
+            default:
+                setDealsList(items)
+                break;
+        }
 
+        setTab(selectedTab)
+    };
 
-    // let payload = { "username": "Aliska", "password": "Aliska" };
-    // let url = `http://localhost:3863/admin/getemailbody?asins=174402`; //api url
-
-    // // const axios = require(`axios`);
-    // axios({
-    //     method: 'get',
-    //     url: url,
-    //     headers: {
-    //         "auth": payload
-    //     },
-    // }).then(function (res) {
-    //     console.log(res.data)
-    // });
-
-    // console.log("Valid=" + (items));
-    // const ar = React.Children.toArray(items);
+    const { color, Icon, convertDate } = CardFooter(deal)
 
     return (
-        
-        // (!items)?
-        // <h2>Error</h2>
-        // :
-        <div className="row justify-content-md-center" style={{ '--bs-gutter-x': '0px' }} >
-            {
-                items.map((item, id) => (
-                    <Deal key={id} deal={item} />
-                    // <ItemComponent key={id} {...{ [resourceName]: item }} />
-                ))}
-        </div>
+        <>
+            <DealsLayout onChange={UpdateCardWidth} layout={layout} handleChange={handleTabChange} selecteTab={tab} />
+            <div className="row justify-content-md-center" style={{ '--bs-gutter-x': '0px' }} >
+                {
+                    dealsList.map((item, id) => (
+                        <Deal key={id} deal={item} cardWidth={cardWidth} showDetails={showDetails} showEmail={showEmail} />
+                    ))}
+            </div>
+
+            <CustomModal
+                size="lg"
+                show={modalShow}
+                label='Details'
+                onHide={() => setModalShow(false)}
+                footercomponent={<Typography color={color} fontSize='small' >
+                    {Icon}
+                    <b style={{ textAlign: 'right', color: 'black', paddingLeft: '30%' }}>Posted on {convertDate(deal.PostedDate)}</b>
+                </Typography>}
+            >
+                <div dangerouslySetInnerHTML={{ __html: deal?.Details }} ></div>
+            </CustomModal>
+            <CustomModal
+                size="lg"
+                show={showModalEmail}
+                label='Send Email To Friend'
+                onHide={() => setShowModalEmail(false)}
+
+            >
+                {<Typography variant="h3" fontSize='small' >
+                    {deal.Title}
+                </Typography>}
+                {/* <div dangerouslySetInnerHTML={{ __html: deal?.Details }} ></div> */}
+            </CustomModal>
+        </>
     )
 }
-
-
-
 
 export default DealsList

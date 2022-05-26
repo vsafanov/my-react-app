@@ -34,7 +34,8 @@ const CustomModal = ({ onSave, ShowSaveButton, AddButton, ...rest }) => {
 
                 </Modal.Body>
                 <Modal.Footer style={{cursor:'default'}}>
-                    <Button variant="secondary" onClick={rest.onHide}>
+                    <span  style={{textAlign:'left',width:'85%'}}>{rest.footercomponent}</span>
+                    <Button  variant="secondary" onClick={rest.onHide}>
                         Close
                     </Button>
                     {ShowSaveButton ?
@@ -42,7 +43,7 @@ const CustomModal = ({ onSave, ShowSaveButton, AddButton, ...rest }) => {
                         <Button variant="primary" type={rest.type} form={rest.form} onClick={() => onSave && onSave()} >
                             Save Changes
                         </Button>
-                        : ''
+                        : null
                     }
                     {AddButton}
 

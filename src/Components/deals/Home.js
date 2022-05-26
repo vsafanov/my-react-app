@@ -6,41 +6,9 @@ import React, { useEffect, useState } from "react"
 import { Alert, AlertTitle, Backdrop, CircularProgress, Button, Typography } from '@mui/material';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import Icon from '@mui/material/Icon';
+import ClientApi, { LoadLookup, method } from "../../ClientApi";
 
 
-
-const useDataApi = () => {
-
-  const [list, setItems] = useState({});
-  // const [url, setUrl] = useState('http://localhost:5000/deal_list' );
-  const [loading, setLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState(null);
-
-  // console.log("started");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('http://localhost:5000/deal_list');
-        setItems(response.data);
-      } catch (error) {
-        // console.log(error);
-        setError(error);
-        setIsError(true);
-      }
-      setLoading(false);
-    }
-
-    fetchData().catch(
-      console.error
-    );
-
-  }, []);
-
-  return [{ list, loading, error, isError }];
-}
 
 function ErrorAlert(props) {
   const [show, setShow] = useState(props.ShowAlert);
@@ -56,22 +24,33 @@ function ErrorAlert(props) {
   return null;
 }
 
-function Home() {
+function Home(props) {
 
-  const [{ list, loading, error, isError }] = useDataApi();
+  const [value, setValue] = useState('')
 
-  const [msg, setMsg] = useState('')
+  LoadLookup(['Companies', 'Statuses', 'Categories'])
 
-  const changeState = () => {
-    setMsg('New Text that updates external component ');
-  };
+  let [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list', method.get);
+
+
+  const UpdateSearch = (value) => {
+    setValue(value)
+    console.log('Click:', value)
+  }
+
+  useEffect(() => {
+    console.log('useEffect:', value)
+    if (props.events) {
+      props.events.click = UpdateSearch
+    }
+  }, [])
 
   return (
     <>
 
-      <Typography variant="h5">Hello: '{msg}'</Typography>
-
-      {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={!msg ? error.message : msg} />)}
+      {/* <Typography variant="h5">Hello: '{msg}'</Typography> */}
+      { }
+      {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={isError ? error.message : ''} />)}
 
       {loading && (
         <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading} >
@@ -81,11 +60,16 @@ function Home() {
 
       {!loading && !isError && (
         <div>
-          <DealsList items={list} resourceName="deal" itemComponent={Deal} />
+          <DealsList
+            items={value === ''
+              ? result
+              : result.filter(entry => entry?.Details?.toLowerCase()?.indexOf(value?.toLowerCase()) >= 0)
+            }
+
+            resourceName="deal"
+            itemComponent={Deal} />
         </div>)
       }
-
-      <div><Button variant='contained' onClick={changeState} startIcon={<AlarmIcon />}>Update Alert</Button></div>
 
     </>
 

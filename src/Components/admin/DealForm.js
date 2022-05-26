@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import moment from 'moment';
-import { TextField, Alert, Icon, Grid, MenuItem, Select, FormControl, InputLabel, Menu, Chip } from "@mui/material";
+import { TextField, Alert, Icon, Grid, MenuItem, Select, FormControl, InputLabel, Menu, Chip, OutlinedInput } from "@mui/material";
 import ReactDatePicker from "react-datepicker";
 import { DatePicker, DateTimePicker, DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -59,10 +59,10 @@ export const DealForm = ({ dealid, ...props }) => {
             // setValue('CategoryID', result?.Categories?.split(',').map(Number) || [])
             // result?.Categories && setValue('CategoryID', result?.Categories === "" ? [] : result?.Categories.split(',').map(Number))
             console.log('GetV', category)
-        
-        reset(result);
 
-    }
+            reset(result);
+
+        }
 
     }, [result])
 
@@ -117,10 +117,10 @@ export const DealForm = ({ dealid, ...props }) => {
         })
     }, [loading]);
 
-    const handleChange = (e) => {        
+    const handleChange = (e) => {
         setCategory(e.target.value);
         setValue('CategoryID', e.target.value, true) //update for validation
-        console.log('C',e.target.value)
+        console.log('C', e.target.value)
     }
 
     return (
@@ -155,9 +155,6 @@ export const DealForm = ({ dealid, ...props }) => {
                                     focused
                                     {...register("ExpirationDate")}
                                     InputProps={{ style: { fontSize: 14 } }}
-                                // InputLabelProps={{ style: { fontSize: 8 } }}
-
-                                // onChange={handleChange}                                
                                 />
                             </div>
                             <div className="col-3">
@@ -178,7 +175,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                 // helperText="Please select your currency"
                                 >
                                     {statuses.map((item) =>
-                                        <MenuItem key={item.StatusID} value={item.StatusID} >
+                                        <MenuItem key={item.StatusID} value={item.StatusID} dense={true}>
                                             {item.Status}
                                         </MenuItem>
                                     )}
@@ -188,35 +185,33 @@ export const DealForm = ({ dealid, ...props }) => {
                         <div className="row">
                             <div className="col-3" >
                                 <TextField
-                                    // style={{fontSize:'12px'}}
                                     fullWidth={true}
                                     margin="normal"
                                     size='small'
                                     select
                                     label="Company"
                                     InputProps={{ style: { fontSize: 14 } }}
-                                    // value = {[]}
                                     defaultValue={result.CompanyID || 755}
                                     {...register("CompanyID")}
                                 // helperText="Please select your currency"
                                 >
                                     {companies.map((item) =>
-                                        <MenuItem key={item.CompanyID} value={item.CompanyID} >
+                                        <MenuItem key={item.CompanyID} value={item.CompanyID} dense={true}>
                                             {item.CompanyName}
                                         </MenuItem>
                                     )}
                                 </TextField>
                             </div>
                             <div className="col-3" >
-                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px' }} >
-                                    <InputLabel error={errors.CategoryID?.type === 'required'}>  Category </InputLabel>
-                                    <Select
-                                        style={{ overflow: 'clip', maxHeight: '160px' }}
+                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px'}} >
+                                    <InputLabel error={errors.CategoryID?.type === 'required'} style= {{ fontSize: 14}}>  Category </InputLabel>
+                                    <Select                                    
+                                        style={{ overflow: 'clip', maxHeight: '160px'  }}
                                         size='small'
                                         error={errors.CategoryID?.type === 'required'}
                                         multiple
                                         value={category} //{getValues('CategoryID')||result?.Categories?.split(',').map(Number)} //
-
+                                        dense={true}
                                         label="Category"
                                         renderValue={(selected) =>
                                         (
@@ -226,8 +221,6 @@ export const DealForm = ({ dealid, ...props }) => {
                                                         <Chip size="small" key={id} label={categories.find(x => x.CategoryID === parseInt(id))?.Category}
                                                             onMouseDown={(event) => { event.stopPropagation(); }}
                                                             onDelete={() => {
-                                                                // setValue('CategoryID', selected.filter(entry => entry !== id))
-
                                                                 var result = selected.filter(entry => entry !== id)
                                                                 setCategory(result || [])
                                                                 setValue('CategoryID', result, true)//update for validation
@@ -235,20 +228,18 @@ export const DealForm = ({ dealid, ...props }) => {
                                                             }}
                                                         />
                                                     ))
-
                                                 }
                                             </Box>
                                         )}
                                         // ref={null}
                                         {...register("CategoryID", {
                                             onChange: (e) => handleChange(e),
-                                            //onChange:(e)=>setValue('CategoryID',e.target.value), 
                                             required: true
                                         })}
                                     //  onChange={(e)=>setValue('CategoryID',e.target.value)} //MUST BE AFTER register
                                     >
                                         {categories.map((item) => (
-                                            <MenuItem key={item.CategoryID} value={item.CategoryID} >
+                                            <MenuItem key={item.CategoryID} value={item.CategoryID} dense={true}>
                                                 {item.Category}
                                             </MenuItem>
                                         ))}
@@ -270,7 +261,6 @@ export const DealForm = ({ dealid, ...props }) => {
                                     onChange={(data) => { setValue('Title', data, true) }}
                                     setOptions={optionsTitle}
                                     ref={null}
-
                                 />
                                 {/* {errors.CategoryID?.type === 'required' && "Title is required"} */}
                             </div>
@@ -292,7 +282,6 @@ export const DealForm = ({ dealid, ...props }) => {
                             </div>
                         </div>
                     </div>
-
                     <p>{data}</p>
                     <br />Watch for All Fields: {watchFields} <br />
                     {/* <input type="submit" /> */}

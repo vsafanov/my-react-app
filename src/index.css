@@ -46,7 +46,12 @@ div .sun-editor-custom {
   font-size: 16px;
 }
 
-.mymargin{
-  margin-top: 26px;
-  padding-top: 20px;
+ul li {
+  position: relative;
+  left: 1.2em;
+  padding-right: 1em;
+}
+
+.toggleButtonGroup{
+  border:1px solid #2196f3 !important;
 }

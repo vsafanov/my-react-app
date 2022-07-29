@@ -116,11 +116,12 @@ const Index = () => {
 
                       <div className="col-1">
                         <CustomInput
-                          {...register(`result.${index}.Posted`)}
+                          
                           id={item.id}
                           label="Posted"
                           defaultValue={convertDate(item.postedDate)}
                           type="date"
+                          {...register(`result.${index}.Posted`)}
                         />
                         {/* <TextField
                             key={`Status_${item.id}`}

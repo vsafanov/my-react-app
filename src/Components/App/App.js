@@ -38,61 +38,10 @@ function App() {
   };
   const [loading, setLoading] = useState(false);
  
-  // useEffect(() => {
-
-  //   const fetchData = () => {
-  //     setLoading(true);
-  //     try {
-
-  //       // alert(url)
-  //       // let response = {};
-  //       // response = await axios.get('http://localhost:5057/auth/login', requestOptions);
-
-  //       fetch('http://localhost:5057/auth/login', {
-  //         method: 'GET',
-  //         credentials: 'include',
-  //         // redirect: 'follow',
-          
-  //         headers: {
-  //           'Accept': 'application/json',
-  //           'Content-Type': 'application/json',
-  //           'Authorization': 'Basic QWxpc2thOkFsaXNrYQ=='
-  //         }
-  //       })
-  //         .then(
-  //           function (response) {
-  //             if (response.status !== 200) {
-  //               console.log('Looks like there was a problem. Status Code: ' +
-  //                 response.status);
-  //               return;
-  //             }
-  //           }
-  //         )
-  //         .catch(function (err) {
-  //           console.log('Fetch Error :-S', err);
-  //         });
-
-  //     } catch (error) {
-  //       console.log("Error:", error);
-  //       // setError(error);
-  //       // setIsError(true);
-  //     }
-  //     setLoading(false);
-
-
-  //   }
-
-  //   fetchData()
-    
-  //   // .catch(
-  //   //   error => console.log('error2', error)
-  //   // );
-
-  // }, [])
 
   return (
     <>
-      {/* {loading && <h1>Loading...</h1>} */}
+    
       { (
 
         <BrowserRouter>

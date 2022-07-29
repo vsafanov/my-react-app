@@ -56,7 +56,9 @@ const Layout = () => {
 
     ]
 
-    const isAllDone = LoadLookup(['Company', 'Status', 'Category'])
+    // let isAllDone = false
+
+    const isAllDone = sessionStorage.getItem("Company") === null? LoadLookup(['Company', 'Status', 'Category']):false
 
     // const [active, setActive] = useState('/admin/Main')
     // const preventDefault = (event) => event.preventDefault();

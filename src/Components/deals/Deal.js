@@ -11,9 +11,9 @@ const Deal = ({ deal, cardWidth, showDetails, showEmail }) => {
     return (
         <>
             {Icon &&
-                <Card id={deal.DealID} key={deal.DealID} style={{ width: cardWidth }} className={`${borderColor} card-size`}>
+                <Card id={deal.dealId} key={deal.dealId} style={{ width: cardWidth }} className={`${borderColor} card-size`}>
                     <Card.Body className="overflow-hidden" style={{ padding: '8px' }}>
-                        <Card.Text dangerouslySetInnerHTML={{ __html: deal.Details }} />
+                        <Card.Text dangerouslySetInnerHTML={{ __html: deal.details }} />
                     </Card.Body>
                     <Card.Footer href="#" className={`card-footer bg-transparent ${borderColor}`}>
 

@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 import './index.css';
@@ -23,47 +23,44 @@ const theme = createTheme({
   },
 });
 
-const childEvent = {
-  click: (value) => {
-    console.log('childEvent', value)
-  }
-}
+// const childEvent = {
+//   click: (value) => {
+//     console.log('childEvent', value)
+//   }
+// }
 
-const Search = (value) => {
-  console.log('Search', value)
-  childEvent.click(value)
-}
+// const Search = (value) => {
+//   console.log('Search 1', value)
+//   childEvent.click(value)
+// }
 
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomeLayout Search={Search} />} >
-            <Route path="deal" element={<Home events={childEvent} />} />
-          </Route>
-          <Route path='admin' element={<Layout />}>
-            {
-              adminRoutes.map(route => {
-                return <Route key={route.path} path={route.path} element={route.component} />
 
-              })
-            }
-            {/* <Route path='index' element={<Index />} /> 
-            <Route path='DealsList' element={<DealsList />} />  */}
+      <App />
+      {/*
+        <BrowserRouter>
+          <Routes>
 
-          </Route>
-          <Route
-            path="*"
-            element={
-              <main style={{ padding: "1rem" }}>
-                <p>There's nothing here!</p>
-              </main>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+            <Route path="/" element={<App  />}   Layout={ <HomeLayout onSearch={Search} />}>
+              <Route path="deal" element={<Home events={childEvent}/>}  />
+            </Route>
+
+            <Route path='admin' element={<Layout />}>
+              {
+                adminRoutes.map(route => {
+                  return <Route key={route.path} path={route.path} element={route.component} />
+
+                })
+              }
+            </Route>
+            <Route path="*" element={ <main style={{ padding: "1rem" }}> <p>There's nothing here!</p> </main> }    />
+          </Routes>
+        </BrowserRouter>
+      */}
+
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')

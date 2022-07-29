@@ -9,8 +9,8 @@ import DeleteIcon from "@mui/icons-material/Delete"
 
 import CustomModal from "../common/CustomModal";
 import { DealForm } from "./DealForm";
-import ClientApi, { method } from "../../ClientApi";
-
+import ExecuteApi from "../../ClientApi";
+import configData from "../../config.json";
 
 function getFormattedDate(params) {
   return moment(params.row.PostedDate).format('MM-DD-YYYY');
@@ -31,7 +31,7 @@ function ErrorAlert(props) {
 }
 const DealsList = () => {
 
-  const [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list', method.get);
+  const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}/dealslist?numberOfDeals=100`);
 
   const [modalShow, setModalShow] = useState(false);
   const [dealId, setDealId] = useState('');
@@ -65,7 +65,7 @@ const DealsList = () => {
       headerName: 'Action',
       sortable: false,
       // type:'actions',
-      width: 130,
+      width: 120,
       headerAlign: 'center',
       headerClassName: 'grid-header',
       renderCell: (params) => (
@@ -93,9 +93,10 @@ const DealsList = () => {
     //   // flex:0.1
     // },
     {
-      field: 'PostedDate',
+      field: 'postedDate',
       headerName: 'Posted',
-      width: 100,
+      width: 90,
+      headerAlign: 'center',
       headerClassName: 'grid-header',
       type: 'date',
       // valueGetter:getFormattedDate, // THIS WORKS
@@ -104,10 +105,11 @@ const DealsList = () => {
       // flex:0.15
     },
     {
-      field: 'ExpirationDate',
+      field: 'expirationDate',
       headerName: 'Expiration',
+      headerAlign: 'center',
       headerClassName: 'grid-header',
-      width: 100,
+      width: 90,
       type: 'date',
       valueFormatter: (params) => { return params.value ? moment(params.value).format('MM/DD/YYYY') : '' },
 
@@ -115,60 +117,69 @@ const DealsList = () => {
       // flex:0.15
     },
     {
-      field: 'StatusID',
+      field: 'status',
       headerName: 'Status',
       headerAlign: 'center',
       headerClassName: 'grid-header',
       // type: 'string',
-      minWidth: 110,
+      minWidth: 90,
       editable: true,
       // flex: 0.05
-
+      renderCell: (params) => {
+        return <div className="rowitem">{params.row.status.status1}</div>;
+      },
     },
     {
-      field: 'CompanyName',
+      field: 'company',
       headerName: 'Company',
       headerAlign: 'center',
       headerClassName: 'grid-header',
       // type: 'string',
-      minWidth: 100,
+      minWidth: 90,
       editable: true,
       // flex: 0.05
-
+      renderCell: (params) => {
+        return <div className="rowitem">{params.row.company.companyName}</div>;
+      },
     },
     {
-      field: 'Categories',
+      field: 'categories',
       headerName: 'Categories',
       // type: 'integer',
-      width: 120,
+      headerAlign: 'center',
+      width: 100,
       editable: false,
       headerClassName: 'grid-header',
-      renderCell: (params) => (<div className="text-wrap" dangerouslySetInnerHTML={{ __html: params.value }} />),
+      // renderCell: (params) => (<div className="text-wrap" dangerouslySetInnerHTML={{ __html: params.value }} />),
       // flex:0.1
+      renderCell: (params) => {
+        return <div className="rowitem">{params.row.categories.map((c) => <li key={c.categoryId}>{c.category1}</li>)}</div>;
+      },
     },
     {
-      field: 'Title',
+      field: 'title',
       headerName: 'Title',
       headerAlign: 'center',
       headerClassName: 'grid-header',
       // type: 'string',
 
-      minWidth: 200,
+      minWidth: 240,
       editable: true,
 
       renderCell: (params) => (<div className="text-wrap" dangerouslySetInnerHTML={{ __html: params.value }} />),
     },
     {
-      field: 'Details',
+      field: 'details',
       headerName: 'Details',
-      headerAlign: 'center',
+      // headerAlign: 'center',
       headerClassName: 'grid-header',
       // description: 'This column has a value getter and is not sortable.',
       sortable: false,
-      width: 600,
+      minWidth: 600,
+      // className: 'grid-details',
       // valueGetter: (params) =>
       //   `${params.row.firstName || ''} ${params.row.lastName || ''}`,
-      renderCell: (params) => (<div style={{ margin: 'hidden' }} dangerouslySetInnerHTML={{ __html: params.value }} />),
+      renderCell: (params) => (<div style={{ margin: 'wrap' }} className='grid-details' dangerouslySetInnerHTML={{ __html: params.value }} />),
 
     },
     // {
@@ -219,7 +230,7 @@ const DealsList = () => {
         show={modalShow}
         id={dealId}
         label={dealId === 0 ? `Create New Deal` : `Edit deal # ${dealId}`}
-        
+
         onHide={() => setModalShow(false)}
         // onSave={onSave}
         ShowSaveButton={true}
@@ -246,7 +257,8 @@ const DealsList = () => {
             sx={{ 'fontSize': '12px' }}
             headerHeight={30}
             autoHeight={true}
-            rowHeight={100}
+            rowHeight={140}
+            headerAlign='center'
             rows={result}
             columns={columns}
             pageSize={10}
@@ -254,8 +266,8 @@ const DealsList = () => {
             checkboxSelection
             disableSelectionOnClick
             density='comfortable'
-            getRowId={(row) => row.DealID}
-            key={(row) => row.DealID}
+            getRowId={(row) => row.dealId}
+            key={(row) => row.dealId}
             // loading='true'
             components={{ Toolbar: CustomToolbar }}
 

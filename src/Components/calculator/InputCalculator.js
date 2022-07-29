@@ -3,10 +3,10 @@ import { useState } from "react";
 import Calculator from "./Calculator";
 import CalculateOutlinedIcon from '@mui/icons-material/CalculateOutlined';
 
-const InputCalculator = ( props) => {
+const InputCalculator = (props) => {
 
     const [show, SetShow] = useState(false)
-    const [value, SetValue] = useState(props.DefaultValue || 0)
+    const [text, SetText] = useState(props.defaultValue || 0)
 
     const handleClick = (event) => {
         SetShow(!show)
@@ -14,25 +14,27 @@ const InputCalculator = ( props) => {
 
     const CalcButton = () => {
 
-        return  (
+        return (
             <IconButton color='primary' title="Show/hide calculator" onClick={handleClick} {...props}>
                 {props.Icon || <CalculateOutlinedIcon fontSize="medium" />}
             </IconButton>
         )
-    }  
+    }
 
     return (
         <>
-            <TextField
-                style={{ width: props.InputWidth || '200px' }}
-                label="Calculator"
-                value={value}
-                size="large"
-                onChange={(e) => SetValue(e.target.value)}
-                InputProps={{ endAdornment: <CalcButton />, style:{fontSize:props.InputFontSize || 14}}}
-                {...props}
-            />
-            <Calculator Show={show} onBlur={()=> {alert('Blur');SetShow(false)}} onShow={SetShow} DefaultValue={value} onUpdateParentInput={SetValue} />
+            <div style={{ display: 'inline-block' }} >
+                <TextField
+                    style={{ width: props.InputWidth || '200px' }}
+                    label="Calculator"
+                    value={text}
+                    size="large"
+                    onChange={(e) => SetText(e.target.value)}
+                    InputProps={{ endAdornment: <CalcButton />, style: { fontSize: props.InputFontSize || 14 } }}
+                    {...props}
+                />
+                <Calculator Show={show} onBlur={() => { SetShow(false) }} onShow={SetShow}  defaultValue={text} onUpdateParentInput={SetText} />
+            </div>
         </>
     );
 }

@@ -6,13 +6,14 @@ import ReactDatePicker from "react-datepicker";
 import { DatePicker, DateTimePicker, DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Error } from "@mui/icons-material"
-import ClientApi, { method } from "../../ClientApi";
+import ExecuteApi from "../../ClientApi";
 import InputCalculator from "../calculator/InputCalculator";
 import SunEditor from 'suneditor-react';
 import 'suneditor/dist/css/suneditor.min.css'; // Import Sun Editor's CSS File
 import { Box } from "@mui/system";
 import { optionsDetails, optionsTitle } from "../../config";
-import IcecreamTwoTone from '@mui/icons-material/IcecreamTwoTone';
+import configData from "../../config.json";
+
 
 
 export const DealForm = ({ dealid, ...props }) => {
@@ -23,13 +24,13 @@ export const DealForm = ({ dealid, ...props }) => {
     const [category, setCategory] = useState([])
 
 
-    const companies = JSON.parse(sessionStorage.getItem("Companies"))
-    const categories = JSON.parse(sessionStorage.getItem("Categories"))
-    const statuses = JSON.parse(sessionStorage.getItem("Statuses"))
+    const companies = JSON.parse(sessionStorage.getItem("Company"))
+    const categories = JSON.parse(sessionStorage.getItem("Category"))
+    const statuses = JSON.parse(sessionStorage.getItem("Status"))
 
     const myform = useRef()
 
-    const [{ result, loading, error, isError }] = ClientApi(`http://localhost:5000/deals_list/${dealid}`, method.get);
+    const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}/deal/${dealid}`)
 
     console.log(result)
 
@@ -37,7 +38,7 @@ export const DealForm = ({ dealid, ...props }) => {
 
         defaultValues: { result },
         mode: "onChange",
-        reValidateMode: 'onChange',
+        reValidateMode: 'onChange'
 
     });
 
@@ -48,13 +49,13 @@ export const DealForm = ({ dealid, ...props }) => {
 
         if (result) {
 
-            result.ExpirationDate = convertDate(result?.ExpirationDate)
-            result.PostedDate = convertDate(result?.PostedDate) || convertDate(new Date())
+            result.expirationDate = convertDate(result?.expirationDate)
+            result.postedDate = convertDate(result?.postedDate) || convertDate(new Date())
 
             // setDate(convertDate(result.PostedDate))
             // console.log('Categories', result.Categories, 'Array IDs', result.Categories?.split(',').map(Number))
 
-            setCategory(result.Categories?.split(',').map(Number) || []) //convert to num array
+             setCategory(result.categories?.map((c)=>c.categoryId) || []) //convert to num array
 
             // setValue('CategoryID', result?.Categories?.split(',').map(Number) || [])
             // result?.Categories && setValue('CategoryID', result?.Categories === "" ? [] : result?.Categories.split(',').map(Number))
@@ -68,7 +69,7 @@ export const DealForm = ({ dealid, ...props }) => {
 
 
     // const watchAllFields = watch(); // when pass nothing as argument, you are watching everything
-    const watchFields = watch(["CategoryID"]); // you can also target specific fields by their names
+    const watchFields = watch(["categoryId"]); // you can also target specific fields by their names
 
     const onSubmit = (data, e) => {
 
@@ -119,7 +120,7 @@ export const DealForm = ({ dealid, ...props }) => {
 
     const handleChange = (e) => {
         setCategory(e.target.value);
-        setValue('CategoryID', e.target.value, true) //update for validation
+        setValue('categoryId', e.target.value, true) //update for validation
         console.log('C', e.target.value)
     }
 
@@ -140,7 +141,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                     type="date"
                                     InputProps={{ style: { fontSize: 14 } }}
                                     focused
-                                    {...register("PostedDate")}
+                                    {...register("postedDate")}
                                 // onChange={handleChange}
                                 />
                             </div>
@@ -170,13 +171,13 @@ export const DealForm = ({ dealid, ...props }) => {
                                     label="Status"
                                     InputProps={{ style: { fontSize: 14 } }}
                                     // value = {[]}
-                                    defaultValue={result.StatusID || 1}
-                                    {...register("StatusID")}
+                                    defaultValue={result.statusId || 1}
+                                    {...register("statusId")}
                                 // helperText="Please select your currency"
                                 >
-                                    {statuses.map((item) =>
-                                        <MenuItem key={item.StatusID} value={item.StatusID} dense={true}>
-                                            {item.Status}
+                                    {statuses?.map((item) =>
+                                        <MenuItem key={item.statusId} value={item.statusId} dense>
+                                            {item.status1}
                                         </MenuItem>
                                     )}
                                 </TextField>
@@ -191,40 +192,40 @@ export const DealForm = ({ dealid, ...props }) => {
                                     select
                                     label="Company"
                                     InputProps={{ style: { fontSize: 14 } }}
-                                    defaultValue={result.CompanyID || 755}
-                                    {...register("CompanyID")}
+                                    defaultValue={result.companyId || 755}
+                                    {...register("d")}
                                 // helperText="Please select your currency"
                                 >
                                     {companies.map((item) =>
-                                        <MenuItem key={item.CompanyID} value={item.CompanyID} dense={true}>
-                                            {item.CompanyName}
+                                        <MenuItem key={item.companyId} value={item.companyId} dense>
+                                            {item.companyName}
                                         </MenuItem>
                                     )}
                                 </TextField>
                             </div>
                             <div className="col-3" >
-                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px'}} >
-                                    <InputLabel error={errors.CategoryID?.type === 'required'} style= {{ fontSize: 14}}>  Category </InputLabel>
-                                    <Select                                    
-                                        style={{ overflow: 'clip', maxHeight: '160px'  }}
+                                <FormControl fullWidth={true} sx={{ m: 2, marginLeft: 0, maxHeight: '160px' }} >
+                                    <InputLabel error={errors.categoryId?.type === 'required'} style={{ fontSize: 14 }}>  Category </InputLabel>
+                                    <Select
+                                        style={{ overflow: 'clip', maxHeight: '160px' }}
                                         size='small'
-                                        error={errors.CategoryID?.type === 'required'}
+                                        error={errors.categoryId?.type === 'required'}
                                         multiple
                                         value={category} //{getValues('CategoryID')||result?.Categories?.split(',').map(Number)} //
-                                        dense={true}
+                                        dense
                                         label="Category"
                                         renderValue={(selected) =>
                                         (
                                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                                 {
                                                     selected?.map((id) => (
-                                                        <Chip size="small" key={id} label={categories.find(x => x.CategoryID === parseInt(id))?.Category}
+                                                        <Chip size="small" key={id} label={categories.find(x => x.categoryId === parseInt(id))?.category1}
                                                             onMouseDown={(event) => { event.stopPropagation(); }}
                                                             onDelete={() => {
                                                                 var result = selected.filter(entry => entry !== id)
                                                                 setCategory(result || [])
-                                                                setValue('CategoryID', result, true)//update for validation
-                                                                console.log(getValues('CategoryID'))
+                                                                setValue('categoryId', result, true)//update for validation
+                                                                console.log(getValues('categoryId'))
                                                             }}
                                                         />
                                                     ))
@@ -232,15 +233,15 @@ export const DealForm = ({ dealid, ...props }) => {
                                             </Box>
                                         )}
                                         // ref={null}
-                                        {...register("CategoryID", {
+                                        {...register("categoryId", {
                                             onChange: (e) => handleChange(e),
                                             required: true
                                         })}
                                     //  onChange={(e)=>setValue('CategoryID',e.target.value)} //MUST BE AFTER register
                                     >
                                         {categories.map((item) => (
-                                            <MenuItem key={item.CategoryID} value={item.CategoryID} dense={true}>
-                                                {item.Category}
+                                            <MenuItem key={item.categoryId} value={item.categoryId} dense>
+                                                {item.category1}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -251,16 +252,16 @@ export const DealForm = ({ dealid, ...props }) => {
                             <div className="col-6" >
                                 <InputLabel style={{ fontSize: '12px' }} error={errors.Title?.type === 'required'}>  Title </InputLabel>
                                 <SunEditor
-                                    {...register("Title", { required: true })}
+                                    {...register("title", { required: true })}
                                     style={{ margin: '16px' }}
                                     name='Title'
                                     height="120"
-                                    defaultValue={result.Title}
-                                    className='sun-editor-custom '
+                                    defaultValue={result.title}
+                                    className='sun-editor-custom'
                                     // setContents = {result.Title}                                    
                                     onChange={(data) => { setValue('Title', data, true) }}
                                     setOptions={optionsTitle}
-                                    ref={null}
+                                // ref={null}
                                 />
                                 {/* {errors.CategoryID?.type === 'required' && "Title is required"} */}
                             </div>
@@ -268,12 +269,12 @@ export const DealForm = ({ dealid, ...props }) => {
 
                         <div className="row ">
                             <div className="col-12">
-                                <InputLabel style={{ fontSize: '12px' }} error={errors.Details?.type === 'required'}>  Details </InputLabel>
+                                <InputLabel style={{ fontSize: '12px' }} error={errors.details?.type === 'required'}>  Details </InputLabel>
                                 <SunEditor
-                                    {...register("Details", { required: true })}
+                                    {...register("details", { required: true })}
                                     height='200'
                                     name='Details'
-                                    defaultValue={result.Details}
+                                    defaultValue={result.details}
                                     // setContents = {result.Title}                                    
                                     onChange={(data) => setValue('Details', data, true)}
                                     setOptions={optionsDetails}

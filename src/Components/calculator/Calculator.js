@@ -4,14 +4,14 @@ import ResultComponent from './ResultComponent';
 import KeyPadComponent from "./KeyPadComponent";
 
 
-const Calculator = ({ DefaultValue, Show, onShow, onUpdateParentInput, ...other },) => {
+const Calculator = ({Show, onShow, onUpdateParentInput, ...other },) => {
 
-    const [result, SetResult] = useState(DefaultValue || 0)
+    const [result, SetResult] = useState(0)
 
     //Update Result panel when calendar opens (Show = true)
     useEffect(() => {
-        Show && SetResult(DefaultValue)
-    }, [DefaultValue, Show])
+        Show && SetResult(other.defaultValue)
+    }, [other.defaultValue, Show])
 
     const onClick = button => {
 

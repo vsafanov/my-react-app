@@ -27,7 +27,8 @@ code {
 
 .grid-header {
   /* font-weight: 900; */
-  font-size: 14px;
+  font-size: 13px;
+  text-align:center;
 }
 
 .phrases {
@@ -46,12 +47,19 @@ div .sun-editor-custom {
   font-size: 16px;
 }
 
-ul li {
+.toggleButtonGroup{
+  border:1px solid #2196f3 !important;
+}
+
+.grid-details{
+  vertical-align: top;
+  padding: 10px;
+  height: 100%;
+  white-space: normal;
+}
+
+.grid-details ul li {
   position: relative;
   left: 1.2em;
   padding-right: 1em;
-}
-
-.toggleButtonGroup{
-  border:1px solid #2196f3 !important;
 }

@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Button } from "@mui/material";
 
-const HomeLayout = ({Search}) => {
+const HomeLayout = ({onSearch}) => {
 
     const [value, setValue] = useState('')
 
@@ -32,7 +32,7 @@ const HomeLayout = ({Search}) => {
                         <div className="col-5">
                             <div className="input-group input-group-sm mb-3 top-50" >
                                 <input type="search" className="form-control" placeholder="What are you looking for?" onChange={(e)=>setValue(e.target.value)} value={value} />
-                                <Button variant="contained" size="small" onClick={()=>Search(value)}>
+                                <Button variant="contained" size="small" onMouseDown={()=>onSearch(value)} onKeyDown={(e)=>{if(e.key === 'Enter')onSearch(value)}}>
                                     <ManageSearchIcon  />
                                 </Button>
                             </div>

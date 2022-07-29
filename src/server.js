@@ -43,7 +43,7 @@ app.get('/deals_list', function (req, res) {
 
     // create Request object
     var request = new sql.Request();
-    var query = ` select top 100 
+    var query = ` select top 120 
                   dl.DealID,							 
                   dl.PostedDate,						
                   dl.ExpirationDate,				

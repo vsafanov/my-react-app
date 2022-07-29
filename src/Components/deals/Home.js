@@ -1,12 +1,10 @@
 
 import DealsList from "./DealsList"
 import Deal from './Deal';
-import axios from "axios";
 import React, { useEffect, useState } from "react"
 import { Alert, AlertTitle, Backdrop, CircularProgress, Button, Typography } from '@mui/material';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import Icon from '@mui/material/Icon';
-import ClientApi, { LoadLookup, method } from "../../ClientApi";
+import ClientApi, { method } from "../../ClientApi";
+import configData from "../../config.json";
 
 
 
@@ -24,32 +22,80 @@ function ErrorAlert(props) {
   return null;
 }
 
-function Home(props) {
+function Home({ searchText, ...rest }) {
 
-  const [value, setValue] = useState('')
+  const [result, setResult] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState(null);
 
-  LoadLookup(['Companies', 'Statuses', 'Categories'])
+  // const [search, setSearch] = useState(searchText)
+  // const [data, setData] = useState([])
 
-  let [{ result, loading, error, isError }] = ClientApi('http://localhost:5000/deals_list', method.get);
 
+  // const Search = (keyword) => {
 
-  const UpdateSearch = (value) => {
-    setValue(value)
-    console.log('Click:', value)
+  //   setValue(keyword) //!!! MUST HAVE IT FOR DealsList COMPONENT TO RELOAD !!!
+  //   console.log('Click:', keyword)
+  //   // console.log("d:", data)
+  //   const filtered = keyword === ''
+  //     ? result
+  //     : result.filter(entry => entry?.Details?.toLowerCase()?.includes(keyword?.toLowerCase()))
+  //   setData(filtered)
+  //   console.log("filtered:", filtered)
+  // }
+
+  const getDeals = async () => {
+    setLoading(true) //!MUST SET IT HERE
+    let url = `${configData.SERVER_URL}//frontdealslist?numberOfDeals=120&searchText=${searchText}`
+    // const [{ result, loading, error, isError }] = ClientApi(url, method.get);
+    // setLoading(loading)
+    // setResult(result);
+    // setIsError(isError)
+    // setError(error)
+
+    fetch(url)
+      .then(data => {
+        return data.json();
+      })
+      .then(data => {
+        setResult(data);
+        setLoading(false)
+        console.log('useEffect:', result)
+      })
+      .catch(err => {
+        setIsError(true)
+        setError(err)
+        console.error(err)
+      })
   }
 
+
   useEffect(() => {
-    console.log('useEffect:', value)
-    if (props.events) {
-      props.events.click = UpdateSearch
-    }
-  }, [])
+
+    getDeals()
+
+    // if (props.events) {
+    //   props.events.click = Search
+    // }
+  }, [searchText])
+
+
+  // USE IT FOR REGESTERING EVENTS
+  // useEffect(() => {
+  //   setData(result)
+  //   console.log('useEffect:', data)
+  //   if (props.events) {
+  //     props.events.click = Search
+  //   }
+  // }, [result])
+
 
   return (
     <>
 
       {/* <Typography variant="h5">Hello: '{msg}'</Typography> */}
-      { }
+
       {isError && (<ErrorAlert id='al1' ShowAlert='true' Message={isError ? error.message : ''} />)}
 
       {loading && (
@@ -61,11 +107,8 @@ function Home(props) {
       {!loading && !isError && (
         <div>
           <DealsList
-            items={value === ''
-              ? result
-              : result.filter(entry => entry?.Details?.toLowerCase()?.indexOf(value?.toLowerCase()) >= 0)
-            }
-
+            items={result}
+            key={searchText}
             resourceName="deal"
             itemComponent={Deal} />
         </div>)

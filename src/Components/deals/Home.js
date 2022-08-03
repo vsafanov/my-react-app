@@ -47,7 +47,7 @@ function Home({ searchText, ...rest }) {
 
   const getDeals = async () => {
     setLoading(true) //!MUST SET IT HERE
-    let url = `${configData.SERVER_URL}//frontdealslist?numberOfDeals=120&searchText=${searchText}`
+    let url = `${configData.SERVER_URL}frontdealslist?numberOfDeals=120&searchText=${searchText}`
     // const [{ result, loading, error, isError }] = ClientApi(url, method.get);
     // setLoading(loading)
     // setResult(result);

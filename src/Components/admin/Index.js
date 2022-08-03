@@ -13,7 +13,7 @@ const Index = () => {
   const [checkedAll, setCheckedAll] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  const [{ result, loading, error }] =  ExecuteApi(`${configData.SERVER_URL}/dealslist/`);
+  const [{ result, loading, error }] =  ExecuteApi(`${configData.SERVER_URL}dealslist/`);
 
   const {
     register,
@@ -29,6 +29,8 @@ const Index = () => {
     mode: "onChange",
     reValidateMode: "onChange",
   });
+
+  
 
   const onSubmit = (data, e) => {
     e.preventDefault();

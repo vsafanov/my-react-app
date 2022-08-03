@@ -22,6 +22,7 @@ export const DealForm = ({ dealid, ...props }) => {
     const [data, setData] = useState("");
     // const [deal, SetDeal] = useState({})
     const [category, setCategory] = useState([])
+    const [formError,SetFormError] = useState(null)
 
 
     const companies = JSON.parse(sessionStorage.getItem("Company"))
@@ -30,7 +31,7 @@ export const DealForm = ({ dealid, ...props }) => {
 
     const myform = useRef()
 
-    const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}/deal/${dealid}`)
+    const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}deal/${dealid}`)
 
     console.log(result)
 
@@ -55,7 +56,7 @@ export const DealForm = ({ dealid, ...props }) => {
             // setDate(convertDate(result.PostedDate))
             // console.log('Categories', result.Categories, 'Array IDs', result.Categories?.split(',').map(Number))
 
-             setCategory(result.categories?.map((c)=>c.categoryId) || []) //convert to num array
+            setCategory(result.categories?.map((c) => c.categoryId) || []) //convert to num array
 
             // setValue('CategoryID', result?.Categories?.split(',').map(Number) || [])
             // result?.Categories && setValue('CategoryID', result?.Categories === "" ? [] : result?.Categories.split(',').map(Number))
@@ -79,7 +80,11 @@ export const DealForm = ({ dealid, ...props }) => {
         // reset()
     }
 
-    const onError = (errors, e) => console.log(errors, e);
+    const onError = (errors, e) => {
+        console.log('Err',errors, e);
+        SetFormError(errors.toString())
+        console.log('fe',formError)
+    }
 
     useEffect(() => {
 
@@ -162,7 +167,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                 <InputCalculator size='small' /> {/*  DefaultValue={10}  Icon={<IcecreamTwoTone />} /> */}
                             </div>
                             <div className="col-3">
-                                <TextField
+                                    <TextField
                                     // style={{fontSize:'12px'}}
                                     fullWidth={true}
                                     // margin="normal"
@@ -171,12 +176,12 @@ export const DealForm = ({ dealid, ...props }) => {
                                     label="Status"
                                     InputProps={{ style: { fontSize: 14 } }}
                                     // value = {[]}
-                                    defaultValue={result.statusId || 1}
+                                    defaultValue={result?.statusId || 1}
                                     {...register("statusId")}
                                 // helperText="Please select your currency"
                                 >
                                     {statuses?.map((item) =>
-                                        <MenuItem key={item.statusId} value={item.statusId} dense>
+                                        <MenuItem key={item.statusId} value={item.statusId} dense >
                                             {item.status1}
                                         </MenuItem>
                                     )}
@@ -192,12 +197,12 @@ export const DealForm = ({ dealid, ...props }) => {
                                     select
                                     label="Company"
                                     InputProps={{ style: { fontSize: 14 } }}
-                                    defaultValue={result.companyId || 755}
-                                    {...register("d")}
+                                    defaultValue={result?.companyId || 755}
+                                    {...register("companyId")} 
                                 // helperText="Please select your currency"
                                 >
                                     {companies.map((item) =>
-                                        <MenuItem key={item.companyId} value={item.companyId} dense>
+                                        <MenuItem key={item.companyId} value={item.companyId} dense >
                                             {item.companyName}
                                         </MenuItem>
                                     )}
@@ -240,7 +245,7 @@ export const DealForm = ({ dealid, ...props }) => {
                                     //  onChange={(e)=>setValue('CategoryID',e.target.value)} //MUST BE AFTER register
                                     >
                                         {categories.map((item) => (
-                                            <MenuItem key={item.categoryId} value={item.categoryId} dense>
+                                            <MenuItem key={item.categoryId} value={item.categoryId} dense >
                                                 {item.category1}
                                             </MenuItem>
                                         ))}
@@ -250,13 +255,13 @@ export const DealForm = ({ dealid, ...props }) => {
 
                             </div>
                             <div className="col-6" >
-                                <InputLabel style={{ fontSize: '12px' }} error={errors.Title?.type === 'required'}>  Title </InputLabel>
+                                <InputLabel style={{ fontSize: '12px' }} error={errors.title?.type === 'required'}>  Title </InputLabel>
                                 <SunEditor
                                     {...register("title", { required: true })}
                                     style={{ margin: '16px' }}
                                     name='Title'
                                     height="120"
-                                    defaultValue={result.title}
+                                    defaultValue={result?.title}
                                     className='sun-editor-custom'
                                     // setContents = {result.Title}                                    
                                     onChange={(data) => { setValue('Title', data, true) }}
@@ -274,17 +279,18 @@ export const DealForm = ({ dealid, ...props }) => {
                                     {...register("details", { required: true })}
                                     height='200'
                                     name='Details'
-                                    defaultValue={result.details}
-                                    // setContents = {result.Title}                                    
-                                    onChange={(data) => setValue('Details', data, true)}
+                                    defaultValue={result?.details}
+                                    // setContents = {result.title}                                    
+                                    onChange={(data) => setValue('Details', data, true)}    
                                     setOptions={optionsDetails}
-                                    ref={null}
+                                    // ref={null}
                                 />
                             </div>
                         </div>
                     </div>
                     <p>{data}</p>
                     <br />Watch for All Fields: {watchFields} <br />
+                    {formError && <div style={{color:'red'}} > Error: {formError} </div>}
                     {/* <input type="submit" /> */}
                 </form>
             )}

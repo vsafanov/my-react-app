@@ -31,7 +31,7 @@ function ErrorAlert(props) {
 }
 const DealsList = () => {
 
-  const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}/dealslist?numberOfDeals=100`);
+  const [{ result, loading, error, isError }] = ExecuteApi(`${configData.SERVER_URL}dealslist?numberOfDeals=1000`);
 
   const [modalShow, setModalShow] = useState(false);
   const [dealId, setDealId] = useState('');
@@ -262,7 +262,7 @@ const DealsList = () => {
             rows={result}
             columns={columns}
             pageSize={10}
-            //rowsPerPageOptions={[5, 10, 20]}
+            rowsPerPageOptions={[5, 10, 20]}
             checkboxSelection
             disableSelectionOnClick
             density='comfortable'
@@ -270,7 +270,7 @@ const DealsList = () => {
             key={(row) => row.dealId}
             // loading='true'
             components={{ Toolbar: CustomToolbar }}
-
+            // rowsPerPageOptions = {10}
             onSelectionModelChange={(ids) => {
 
               //Keep this comment for feature use

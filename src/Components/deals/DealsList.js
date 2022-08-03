@@ -56,7 +56,7 @@ function DealsList({ items }) {
     const handleTabChange = async (e, selectedTab) => {
         console.log(selectedTab)
         setLoading(true)
-        let url = `${configData.SERVER_URL}/dealsbystatus?numberOfDeals=120`
+        let url = `${configData.SERVER_URL}dealsbystatus?numberOfDeals=120`
 
         switch (selectedTab) {
             case 2:

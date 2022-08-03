@@ -80,25 +80,26 @@ export const ExecuteApi = (url, requestMethod = METHOD_TYPE.get, bodyType = BODY
     let [isError, setIsError] = useState(false);
     let navigate = useNavigate()
 
+    async function fetchMyAPI() {
+
+        const[{ result, loading, error, isError, response }] = await ClientApi(url, requestMethod, bodyType, body, isSecure, data);
+
+        if (response.status === 401) {
+            // return navigate('/login')
+        }
+
+        setResult(result)
+        setLoading(loading)
+        setError(error)
+        setIsError(isError)
+        setResponse(response)
+    }
+
     useEffect(() => {
 
-        async function fetchMyAPI() {
-
-            const[{ result, loading, error, isError, response }] = await ClientApi(url, requestMethod, bodyType, body, isSecure, data);
-
-            if (response.status === 401) {
-                // return navigate('/login')
-            }
-
-            setResult(result)
-            setLoading(loading)
-            setError(error)
-            setIsError(isError)
-            setResponse(response)
-        }
         fetchMyAPI()
 
-    }, [loading])
+    }, [])
 
     return [{ result, loading, error, isError,response }]
 }
@@ -256,7 +257,7 @@ export const LoadLookup = (tableNames) => {
     let isAllDone = false;
     tableNames.map(async (tableName) => {
 
-        let url = `${configData.SERVER_URL}/${tableName}`
+        let url = `${configData.SERVER_URL}${tableName}`
         let [{ result, loading }] = await ClientApi(url)
 
         sessionStorage.setItem(tableName, JSON.stringify(result))
